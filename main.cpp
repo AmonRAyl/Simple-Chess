@@ -1,0 +1,424 @@
+#include <iostream>
+#include <cstdlib>
+
+const char WHITE_ROOK = 'R';
+const char WHITE_PAWN = 'P';
+const char WHITE_HORSE = 'H';
+const char WHITE_BISHOP = 'B';
+const char WHITE_QUEEN = 'Q';
+const char WHITE_KING = 'K';
+
+const char BLACK_ROOK = 'r';
+const char BLACK_PAWN = 'p';
+const char BLACK_HORSE = 'h';
+const char BLACK_BISHOP = 'b';
+const char BLACK_QUEEN = 'q';
+const char BLACK_KING = 'k';
+
+bool WHITE_CASTLE_LEFT = true;
+bool WHITE_CASTLE_RIGHT = true;
+bool WHITE_CASTLE_KING = true;
+
+bool BLACK_CASTLE_LEFT = true;
+bool BLACK_CASTLE_RIGHT = true;
+bool BLACK_CASTLE_KING = true;
+
+const char EMPTY_SQUARE = -2;
+const char VERTICAL_LINE = -70;
+const char HORIZONTAL_LINE = -51;
+
+const char WHITE_PLAYER = 1;
+const char BLACK_PLAYER = 2;
+
+void Create_Grid(char Grid[][8])
+{
+	//Create Empty Board
+	for (int i = 2; i < 6; i++)
+	{
+		for (int j = 0; j < 8; j++)
+		{
+			Grid[i][j] = EMPTY_SQUARE;
+		}
+	}
+	//Setup Pieces
+	for (int i = 0; i < 8; i++)
+	{
+		Grid[1][i] = BLACK_PAWN;
+		Grid[6][i] = WHITE_PAWN;
+	}
+	Grid[0][0] = BLACK_ROOK;
+	Grid[0][1] = BLACK_HORSE;
+	Grid[0][2] = BLACK_BISHOP;
+	Grid[0][3] = BLACK_QUEEN;
+	Grid[0][4] = BLACK_KING;
+	Grid[0][5] = BLACK_BISHOP;
+	Grid[0][6] = BLACK_HORSE;
+	Grid[0][7] = BLACK_ROOK;
+
+	Grid[7][0] = WHITE_ROOK;
+	Grid[7][1] = WHITE_HORSE;
+	Grid[7][2] = WHITE_BISHOP;
+	Grid[7][3] = WHITE_QUEEN;
+	Grid[7][4] = WHITE_KING;
+	Grid[7][5] = WHITE_BISHOP;
+	Grid[7][6] = WHITE_HORSE;
+	Grid[7][7] = WHITE_ROOK;
+}
+void Display_Grid(char Grid[][8])
+{
+	system("CLS");
+	std::cout << "    ";
+	for (int j = 0; j < 8; j++)
+		std::cout << (char)(j + 97) << " ";
+	std::cout << std::endl;
+	std::cout << "   ";
+	for (int i = 0; i < 16; i++)
+		std::cout << HORIZONTAL_LINE;
+	std::cout << std::endl;
+	for (int i = 0; i < 8; i++)
+	{
+		std::cout << (char)(i + 97) << " " << VERTICAL_LINE << " ";
+		for (int j = 0; j < 8; j++)
+		{
+			std::cout << Grid[i][j] << " ";
+		}
+		std::cout << std::endl;
+	}
+}
+bool Check_Start(char Grid[][8], char x, char y, char player)
+{
+	char pos = Grid[x][y];
+
+	//Check piece existence
+	if (pos == EMPTY_SQUARE)
+	{
+		return false;
+	}
+
+	//Check it is your piece
+	if (player == WHITE_PLAYER)
+	{
+		if (pos != WHITE_BISHOP && pos != WHITE_HORSE && pos != WHITE_ROOK && pos != WHITE_KING && pos != WHITE_QUEEN && pos != WHITE_PAWN)
+			return false;
+	}
+	else
+	{
+		if (pos != BLACK_BISHOP && pos != BLACK_HORSE && pos != BLACK_ROOK && pos != BLACK_KING && pos != BLACK_QUEEN && pos != BLACK_PAWN)
+			return false;
+	}
+
+	return true;
+}
+bool Check_ADVANCED(char Grid[][8], char x, char y, char j, char z, char player)
+{
+	char piece = Grid[x][y];
+	char dest = Grid[j][z];
+	bool Castle_Left = false;
+	bool Castle_Right = false;
+	bool King_Move = false;
+	char aux;
+	//Basic movement and Captures
+	switch (piece)
+	{
+	case WHITE_PAWN:
+	case BLACK_PAWN:
+		//Check backwards movement
+		if (piece == WHITE_PAWN && j > x)
+			return false;
+		else if (piece == BLACK_PAWN && x > j)
+			return false;
+		//Check posible double move if first time moving pawn
+		if (abs(x - j) == 2 && (y - z) == 0)
+		{
+			if (player == WHITE_PLAYER && x == 6)
+				goto CHECK_CHECK;
+			else if (player == BLACK_PLAYER && x == 1)
+				goto CHECK_CHECK;
+		}
+		//Check that the move is not further than one square and if it goes diagonally there is not an empty square and can t kill enemies just walking forward
+		if (abs(y - z) > 1 || abs(x - j) > 1 || ((y != z) && (dest == EMPTY_SQUARE)) || ((y == z) && (dest != EMPTY_SQUARE)))
+			return false;
+		//check promote
+		if (j == 0 || j == 7)
+		{
+			std::cout << "What do you want to promote to?" << std::endl;
+			std::cout << "Queen (Q/q) Bishop (B/b) Horse (H/h) Rook (R/r)" << std::endl;
+			std::cin >> piece;
+			bool white_promote = (player == WHITE_PLAYER && (piece == WHITE_HORSE || piece == WHITE_BISHOP || piece == WHITE_QUEEN || piece == WHITE_ROOK));
+			bool black_promote = (player == BLACK_PLAYER && (piece == BLACK_HORSE || piece == BLACK_BISHOP || piece == BLACK_QUEEN || piece == BLACK_ROOK));
+			bool result = !(white_promote^black_promote);
+			while (!std::cin.good() || result)
+			{
+				std::cin.clear();
+				std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+				system("CLS");
+				Display_Grid(Grid);
+				std::cout << "What do you want to promote to?" << std::endl;
+				std::cout << "Queen (Q/q) Bishop (B/b) Horse (H/h) Rook (R/r)" << std::endl;
+				std::cout << "Insert Correct data" << std::endl;
+				std::cin >> piece;
+				white_promote = (player == WHITE_PLAYER && (piece == WHITE_HORSE || piece == WHITE_BISHOP || piece == WHITE_QUEEN || piece == WHITE_ROOK));
+				black_promote = (player == BLACK_PLAYER && (piece == BLACK_HORSE || piece == BLACK_BISHOP || piece == BLACK_QUEEN || piece == BLACK_ROOK));
+				result = !(white_promote^black_promote);
+			}
+			Grid[x][y] = piece;
+		}//ga ea bh dh ea da dh eh da ca eh fh ca bb fh gg bb aa
+		break;
+	case WHITE_HORSE:
+	case BLACK_HORSE:
+		if (abs(x - j) == 2 && abs(y - z) == 1)
+			goto CHECK_CHECK;
+		if (abs(y - z) == 2 && abs(x - j) == 1)
+			goto CHECK_CHECK;
+		return false;
+	case WHITE_QUEEN:
+	case BLACK_QUEEN:
+	case WHITE_ROOK:
+	case BLACK_ROOK:
+		if (x == j && y != z)
+		{
+			y < z ? aux = y : aux = z;
+			for (int t = 1; t < abs(y - z); t++)
+				if (Grid[x][t + aux] != EMPTY_SQUARE)
+					return false;
+			if (piece == BLACK_ROOK || piece == WHITE_ROOK)
+			{
+				if (y == 7) Castle_Right = true;
+				if (y == 0) Castle_Left = true;
+			}
+			goto CHECK_CHECK;
+		}
+		if (z == y && x != j)
+		{
+			x < j ? aux = x : aux = j;
+			for (int t = 1; t < abs(x - j); t++)
+				if (Grid[t + x][y] != EMPTY_SQUARE)
+					return false;
+			if (piece == BLACK_ROOK || piece == WHITE_ROOK)
+			{
+				if (y == 7) Castle_Right = true;
+				if (y == 0) Castle_Left = true;
+			}
+			goto CHECK_CHECK;
+		}
+		if (piece == BLACK_ROOK || piece == WHITE_ROOK)
+			return false;
+	case WHITE_BISHOP:
+	case BLACK_BISHOP:
+		if (abs(x - j) != abs(y - z) || abs(x - j) == 0)
+			return false;
+		if (x > j && y > z) //Search TOP Left x-- y--
+		{
+
+		}
+		else if (x < j && y < z)//Search BOTTOM Rigt x++ y++
+		{
+
+		}
+		else if (x < j && y>z)//Search TOP Left x-- y--
+		{
+
+		}
+		else//Search BOTTOM Right x-- y++
+		{
+
+		}
+		goto CHECK_CHECK;
+		break;
+	case WHITE_KING:
+	case BLACK_KING:
+		//Basic movement
+		if (abs(j - x) > 1 || abs(y - z) > 2)
+			return false;
+		//Castle
+		if (abs(y - z) == 2 && abs(j - x) == 0 && (x == 0 || x == 7) && y == 4)
+		{
+			if (player == WHITE_PLAYER && WHITE_CASTLE_KING == true && (WHITE_CASTLE_LEFT == true || WHITE_CASTLE_RIGHT == true))
+			{
+				if (z == 6)//Castle right
+				{
+					if (Grid[x][5] != EMPTY_SQUARE || Grid[x][6] != EMPTY_SQUARE || WHITE_CASTLE_RIGHT == false)
+						return false;
+					Grid[x][5] = WHITE_ROOK;
+					Grid[x][6] = WHITE_KING;
+					Grid[x][7] = EMPTY_SQUARE;
+					King_Move = true;
+					goto CHECK_CHECK;
+				}
+				if (z == 2)
+				{
+					if (Grid[x][3] != EMPTY_SQUARE || Grid[x][2] != EMPTY_SQUARE || Grid[x][1] != EMPTY_SQUARE || WHITE_CASTLE_LEFT == false)
+						return false;
+					Grid[x][3] = WHITE_ROOK;
+					Grid[x][2] = WHITE_KING;
+					Grid[x][0] = EMPTY_SQUARE;
+					King_Move = true;
+					goto CHECK_CHECK;
+				}
+			}
+			if (player == BLACK_PLAYER && BLACK_CASTLE_KING == true && (BLACK_CASTLE_LEFT == true || BLACK_CASTLE_RIGHT == true))
+			{
+				if (z == 6)//Castle right
+				{
+					if (Grid[x][5] != EMPTY_SQUARE || Grid[x][6] != EMPTY_SQUARE || BLACK_CASTLE_RIGHT == false)
+						return false;
+					Grid[x][5] = BLACK_ROOK;
+					Grid[x][6] = BLACK_KING;
+					Grid[x][7] = EMPTY_SQUARE;
+					King_Move = true;
+					goto CHECK_CHECK;
+				}
+				if (z == 2)
+				{
+					if (Grid[x][3] != EMPTY_SQUARE || Grid[x][2] != EMPTY_SQUARE || Grid[x][1] != EMPTY_SQUARE || BLACK_CASTLE_LEFT == false)
+						return false;
+					Grid[x][3] = BLACK_ROOK;
+					Grid[x][2] = BLACK_KING;
+					Grid[x][0] = EMPTY_SQUARE;
+					King_Move = true;
+					goto CHECK_CHECK;
+				}
+			}
+		}
+		break;
+	}
+CHECK_CHECK:
+	//check oposite bishop queeen or rook
+	//tambien hay que asociar las variablse de castle
+	if (player == WHITE_PLAYER)
+	{
+		for (int p = 0; p < 8; p++)
+		{
+			for (int m = 0; m < 8; m++)
+			{
+				if (Grid[p][m] == BLACK_BISHOP)
+				{
+					//Look on all directions
+				}
+				else if (Grid[p][m] == BLACK_ROOK)
+				{
+					//Look on all directions
+				}
+				else if (Grid[p][m] == BLACK_QUEEN)
+				{
+					//Look on all directions
+				}
+			}
+		}
+	}
+	if (player == BLACK_PLAYER)
+	{
+
+	}
+	//analisis no check on ur king
+	//analissi castle
+	return true;
+}
+bool Check_END(char Grid[][8], char x, char y, char j, char z, char player)
+{
+	char pos = Grid[j][z];
+
+	//Check if destination is empty
+	if (pos == EMPTY_SQUARE)
+	{
+		return Check_ADVANCED(Grid, x, y, j, z, player);
+	}
+
+	//Check if destination is one of your pieces
+	if (player == WHITE_PLAYER)
+	{
+		if (pos == WHITE_BISHOP || pos == WHITE_HORSE || pos == WHITE_ROOK || pos == WHITE_KING || pos == WHITE_QUEEN || pos == WHITE_PAWN)
+			return false;
+	}
+	else
+	{
+		if (pos == BLACK_BISHOP || pos == BLACK_HORSE || pos == BLACK_ROOK || pos == BLACK_KING || pos == BLACK_QUEEN || pos == BLACK_PAWN)
+			return false;
+	}
+	return Check_ADVANCED(Grid, x, y, j, z, player);
+}
+void Player_Choice(char Grid[][8], char PlayerX)
+{
+	char x, y;
+	char j, z;
+start:
+	std::cout << "Choose the piece you want to move:  " << std::endl;
+	std::cout << "Row = ";
+	std::cin >> x;
+	std::cout << "Column = ";
+	std::cin >> y;
+	while (!std::cin.good() || x < 97 || x >= (8 + 97) || y < 97 || y >= (8 + 97) || !Check_Start(Grid, x - 97, y - 97, PlayerX))
+	{
+		std::cin.clear();
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		system("CLS");
+		Display_Grid(Grid);
+		std::cout << "Insert Correct data" << std::endl;
+		std::cout << "Row = ";
+		std::cin >> x;
+		std::cout << "Column = ";
+		std::cin >> y;
+	}
+
+	std::cout << "Choose where to go or write q if you messed up:  " << std::endl;
+	std::cout << "Row = ";
+	std::cin >> j;
+	if (j == 'q')
+	{
+		system("CLS");
+		Display_Grid(Grid);
+		goto start;
+	}
+	std::cout << "Column = ";
+	std::cin >> z;
+	if (z == 'q')
+	{
+		system("CLS");
+		Display_Grid(Grid);
+		goto start;
+	}
+
+	while (!std::cin.good() || j < 97 || j >= (8 + 97) || z < 97 || z >= (8 + 97) || !Check_END(Grid, x - 97, y - 97, j - 97, z - 97, PlayerX))
+	{
+		std::cin.clear();
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		system("CLS");
+		Display_Grid(Grid);
+		std::cout << "Insert Correct data" << std::endl;
+		std::cout << "Choose where to go or write q if you messed up:  " << std::endl;
+		std::cout << "Row = ";
+		std::cin >> j;
+		if (j == 'q')
+		{
+			system("CLS");
+			Display_Grid(Grid);
+			goto start;
+		}
+		std::cout << "Column = ";
+		std::cin >> z;
+		if (z == 'q')
+		{
+			system("CLS");
+			Display_Grid(Grid);
+			goto start;
+		}
+
+	}
+	Grid[j - 97][z - 97] = Grid[x - 97][y - 97];
+	Grid[x - 97][y - 97] = EMPTY_SQUARE;
+}
+
+int main()
+{
+	char Grid[8][8];
+	char player = WHITE_PLAYER;
+	Create_Grid(Grid);
+	Display_Grid(Grid);
+	while (true)
+	{
+		Player_Choice(Grid, player);
+		Display_Grid(Grid);
+		player = player % 2 + 1;
+	}
+	return 0;
+}
