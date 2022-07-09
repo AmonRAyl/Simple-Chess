@@ -95,7 +95,7 @@ bool Check_Start(char Grid[][8], char x, char y, char player)
 		return false;
 	}
 
-	//Check it is your piece
+	//Check if it is your piece
 	if (player == WHITE_PLAYER)
 	{
 		if (pos != WHITE_BISHOP && pos != WHITE_HORSE && pos != WHITE_ROOK && pos != WHITE_KING && pos != WHITE_QUEEN && pos != WHITE_PAWN)
@@ -117,6 +117,7 @@ bool Check_ADVANCED(char Grid[][8], char x, char y, char j, char z, char player)
 	bool Castle_Right = false;
 	bool King_Move = false;
 	char aux;
+	int m, s, t;
 	//Basic movement and Captures
 	switch (piece)
 	{
@@ -192,7 +193,7 @@ bool Check_ADVANCED(char Grid[][8], char x, char y, char j, char z, char player)
 		{
 			x < j ? aux = x : aux = j;
 			for (int t = 1; t < abs(x - j); t++)
-				if (Grid[t + x][y] != EMPTY_SQUARE)
+				if (Grid[t + aux][y] != EMPTY_SQUARE)
 					return false;
 			if (piece == BLACK_ROOK || piece == WHITE_ROOK)
 			{
@@ -209,19 +210,43 @@ bool Check_ADVANCED(char Grid[][8], char x, char y, char j, char z, char player)
 			return false;
 		if (x > j && y > z) //Search TOP Left x-- y--
 		{
-
+			m = y - 1;
+			for (int t = x - 1; t > j; t--)
+			{
+				if (Grid[t][m] != EMPTY_SQUARE)
+					return false;
+				m--;
+			}
 		}
-		else if (x < j && y < z)//Search BOTTOM Rigt x++ y++
+		else if (x < j && y < z)//Search BOTTOM Right x++ y++
 		{
-
+			m = y + 1;
+			for (int t = x + 1; t < j; t++)
+			{
+				if (Grid[t][m] != EMPTY_SQUARE)
+					return false;
+				m++;
+			}
 		}
-		else if (x < j && y>z)//Search TOP Left x-- y--
+		else if (x < j && y>z)//Search BOTTOM Left x++ y--
 		{
-
+			m = y - 1;
+			for (int t = x + 1; t < j; t++)
+			{
+				if (Grid[t][m] != EMPTY_SQUARE)
+					return false;
+				m--;
+			}
 		}
-		else//Search BOTTOM Right x-- y++
+		else//Search top Right x-- y++
 		{
-
+			m = y + 1;
+			for (int t = x - 1; t > j; t--)
+			{
+				if (Grid[t][m] != EMPTY_SQUARE)
+					return false;
+				m++;
+			}
 		}
 		goto CHECK_CHECK;
 		break;
@@ -283,7 +308,7 @@ bool Check_ADVANCED(char Grid[][8], char x, char y, char j, char z, char player)
 		break;
 	}
 CHECK_CHECK:
-	//check oposite bishop queeen or rook
+	//check oposite bishop queeen or rook unless king moves then check all
 	//tambien hay que asociar las variablse de castle
 	if (player == WHITE_PLAYER)
 	{
@@ -291,27 +316,252 @@ CHECK_CHECK:
 		{
 			for (int m = 0; m < 8; m++)
 			{
-				if (Grid[p][m] == BLACK_BISHOP)
+				if (Grid[p][m] == BLACK_BISHOP || Grid[p][m] == BLACK_QUEEN)
 				{
 					//Look on all directions
+					//Search TOP Left x-- y--
+					s = m - 1;
+					t = p - 1;
+					if (t >= 0 && s >= 0)
+					{
+						while (t >= 0)
+						{
+							if (Grid[t][s] != EMPTY_SQUARE && Grid[t][s] != WHITE_KING)
+								break;
+							else
+								return false;
+							s--;
+							t--;
+						}
+					}
+					//Search BOTTOM Right x++ y++
+					s = m + 1;
+					t = p + 1;
+					if (t < 8 && s < 8)
+					{
+						while (t < 8)
+						{
+							if (Grid[t][s] != EMPTY_SQUARE && Grid[t][s] != WHITE_KING)
+								break;
+							else
+								return false;
+							s++;
+							t++;
+						}
+					}
+					//Search BOTTOM Left x++ y--
+					s = m - 1;
+					t = p + 1;
+					if (s >= 0 && t < 8)
+					{
+						while (t < 8)
+						{
+							if (Grid[t][s] != EMPTY_SQUARE && Grid[t][s] != WHITE_KING)
+								break;
+							else
+								return false;
+							s--;
+							t++;
+						}
+					}
+					//Search top Right x-- y++
+					s = m + 1;
+					t = p - 1;
+					if (s < 8 && t >= 0)
+					{
+						while (t >= 0)
+						{
+							if (Grid[t][s] != EMPTY_SQUARE && Grid[t][s] != WHITE_KING)
+								break;
+							else
+								return false;
+							s++;
+							t--;
+						}
+					}
 				}
-				else if (Grid[p][m] == BLACK_ROOK)
+				if (Grid[p][m] == BLACK_ROOK || Grid[p][m] == BLACK_QUEEN)
 				{
-					//Look on all directions
+					for (int t = 1; t < 8; t++)
+					{
+						if (Grid[x][t] != EMPTY_SQUARE && Grid[x][t] != WHITE_KING)
+							break;
+						else
+							return false;
+					}
+					for (int t = 1; t < 8; t++)
+					{
+						if (Grid[t][y] != EMPTY_SQUARE && Grid[t][y] != WHITE_KING)
+							break;
+						else
+							return false;
+					}
 				}
-				else if (Grid[p][m] == BLACK_QUEEN)
+				else if (piece == WHITE_KING)
 				{
-					//Look on all directions
+					if (Grid[p][m] == BLACK_HORSE)
+					{
+						if (p + 2 < 8 && m + 1 < 8 && Grid[p + 2][m + 1] == WHITE_KING)
+							return false;
+						if (p + 2 < 8 && m - 1 >= 0 && Grid[p + 2][m - 1] == WHITE_KING)
+							return false;
+						if (p - 2 >= 0 && m + 1 < 8 && Grid[p - 2][m + 1] == WHITE_KING)
+							return false;
+						if (p - 2 >= 0 && m - 1 >= 0 && Grid[p - 2][m - 1] == WHITE_KING)
+							return false;
+						if (p + 1 < 8 && m + 2 < 8 && Grid[p + 1][m + 2] == WHITE_KING)
+							return false;
+						if (p + 1 < 8 && m - 2 >= 0 && Grid[p + 1][m - 2] == WHITE_KING)
+							return false;
+						if (p - 1 >= 0 && m + 2 < 8 && Grid[p - 1][m + 2] == WHITE_KING)
+							return false;
+						if (p - 1 >= 0 && m - 2 >= 0 && Grid[p - 1][m - 2] == WHITE_KING)
+							return false;
+					}
+					else if (Grid[p][m] == BLACK_PAWN)
+					{
+						if (m + 1 < 8 && Grid[p + 1][m + 1] == WHITE_KING)
+							return false;
+						if (m + 1 < 8 && Grid[p + 1][m - 1] == WHITE_KING)
+							return false;
+					}
 				}
 			}
 		}
+
+		//update castle variables
+
+		if (WHITE_CASTLE_KING != true) WHITE_CASTLE_KING = King_Move;
+		if (WHITE_CASTLE_LEFT != true) WHITE_CASTLE_LEFT = Castle_Left;
+		if (WHITE_CASTLE_RIGHT != true) WHITE_CASTLE_RIGHT = Castle_Right;
 	}
 	if (player == BLACK_PLAYER)
 	{
+		for (int p = 0; p < 8; p++)
+		{
+			for (int m = 0; m < 8; m++)
+			{
+				if (Grid[p][m] == WHITE_BISHOP || Grid[p][m] == WHITE_QUEEN)
+				{
+					//Look on all directions
+					//Search TOP Left x-- y--
+					s = m - 1;
+					t = p - 1;
+					if (t >= 0 && s >= 0)
+					{
+						while (t >= 0)
+						{
+							if (Grid[t][s] != EMPTY_SQUARE && Grid[t][s] != BLACK_KING)
+								break;
+							else
+								return false;
+							s--;
+							t--;
+						}
+					}
+					//Search BOTTOM Right x++ y++
+					s = m + 1;
+					t = p + 1;
+					if (t < 8 && s < 8)
+					{
+						while (t < 8)
+						{
+							if (Grid[t][s] != EMPTY_SQUARE && Grid[t][s] != BLACK_KING)
+								break;
+							else
+								return false;
+							s++;
+							t++;
+						}
+					}
+					//Search BOTTOM Left x++ y--
+					s = m - 1;
+					t = p + 1;
+					if (s >= 0 && t < 8)
+					{
+						while (t < 8)
+						{
+							if (Grid[t][s] != EMPTY_SQUARE && Grid[t][s] != BLACK_KING)
+								break;
+							else
+								return false;
+							s--;
+							t++;
+						}
+					}
+					//Search top Right x-- y++
+					s = m + 1;
+					t = p - 1;
+					if (s < 8 && t >= 0)
+					{
+						while (t >= 0)
+						{
+							if (Grid[t][s] != EMPTY_SQUARE && Grid[t][s] != BLACK_KING)
+								break;
+							else
+								return false;
+							s++;
+							t--;
+						}
+					}
+				}
+				if (Grid[p][m] == WHITE_ROOK || Grid[p][m] == WHITE_QUEEN)
+				{
+					for (int t = 1; t < 8; t++)
+					{
+						if (Grid[x][t] != EMPTY_SQUARE && Grid[x][t] != BLACK_KING)
+							break;
+						else
+							return false;
+					}
+					for (int t = 1; t < 8; t++)
+					{
+						if (Grid[t][y] != EMPTY_SQUARE && Grid[t][y] != BLACK_KING)
+							break;
+						else
+							return false;
+					}
+				}
+				else if (piece == BLACK_KING)
+				{
+					if (Grid[p][m] == WHITE_HORSE)
+					{
+						if (p + 2 < 8 && m + 1 < 8 && Grid[p + 2][m + 1] == BLACK_KING)
+							return false;
+						if (p + 2 < 8 && m - 1 >= 0 && Grid[p + 2][m - 1] == BLACK_KING)
+							return false;
+						if (p - 2 >= 0 && m + 1 < 8 && Grid[p - 2][m + 1] == BLACK_KING)
+							return false;
+						if (p - 2 >= 0 && m - 1 >= 0 && Grid[p - 2][m - 1] == BLACK_KING)
+							return false;
+						if (p + 1 < 8 && m + 2 < 8 && Grid[p + 1][m + 2] == BLACK_KING)
+							return false;
+						if (p + 1 < 8 && m - 2 >= 0 && Grid[p + 1][m - 2] == BLACK_KING)
+							return false;
+						if (p - 1 >= 0 && m + 2 < 8 && Grid[p - 1][m + 2] == BLACK_KING)
+							return false;
+						if (p - 1 >= 0 && m - 2 >= 0 && Grid[p - 1][m - 2] == BLACK_KING)
+							return false;
+					}
+					else if (Grid[p][m] == WHITE_PAWN)
+					{
+						if (m + 1 < 8 && Grid[p - 1][m + 1] == BLACK_KING)
+							return false;
+						if (m + 1 < 8 && Grid[p - 1][m - 1] == BLACK_KING)
+							return false;
+					}
+				}
+
+			}
+		}
+		//update castle variables
+
+		if (BLACK_CASTLE_KING != true) BLACK_CASTLE_KING = King_Move;
+		if (BLACK_CASTLE_LEFT != true) BLACK_CASTLE_LEFT = Castle_Left;
+		if (BLACK_CASTLE_RIGHT != true) BLACK_CASTLE_RIGHT = Castle_Right;
 
 	}
-	//analisis no check on ur king
-	//analissi castle
+	//returns false if the move is not possible
 	return true;
 }
 bool Check_END(char Grid[][8], char x, char y, char j, char z, char player)
