@@ -253,7 +253,7 @@ bool Check_ADVANCED(char Grid[][8], char x, char y, char j, char z, char player)
 	case WHITE_KING:
 	case BLACK_KING:
 		//Basic movement
-		if (abs(j - x) > 1 || abs(y - z) > 2)
+		if (abs(j - x) > 1 || abs(y - z) > 2 || (abs(y - z) > 1 && y!=4))
 			return false;
 		//Castle
 		if (abs(y - z) == 2 && abs(j - x) == 0 && (x == 0 || x == 7) && y == 4)
@@ -304,11 +304,13 @@ bool Check_ADVANCED(char Grid[][8], char x, char y, char j, char z, char player)
 					goto CHECK_CHECK;
 				}
 			}
+			return false;
 		}
+		King_Move = true;
 		break;
 	}
 CHECK_CHECK:
-	//We simulate the move on the actual Grid but if the move is not posible we goto return false and we change the grid again.
+	//We simulate the move on the actual Grid but if the move is not posible we goto restore and we change the grid again.
 	Grid[x][y] = EMPTY_SQUARE;
 	aux_piece = Grid[j][z];
 	Grid[j][z] = piece;
@@ -449,7 +451,7 @@ CHECK_CHECK:
 			}
 		}
 
-		//update castle variables SOMETHING IS WRONG WITH THIS ONE CHECK LATER
+		//update castle variables
 		
 		if (WHITE_CASTLE_KING == true) WHITE_CASTLE_KING = !King_Move;
 		if (WHITE_CASTLE_LEFT == true) WHITE_CASTLE_LEFT = !Castle_Left;
