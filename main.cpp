@@ -30,6 +30,69 @@ const char HORIZONTAL_LINE = -51;
 const char WHITE_PLAYER = 1;
 const char BLACK_PLAYER = 2;
 
+int StartUP_menu()
+{
+	int input;
+start:
+	system("CLS");
+	std::cout << "   SIMPLE CHESS   " << std::endl;
+	std::cout << std::endl;
+	std::cout << "  1) Start P vs P Game (2 players)" << std::endl;
+	std::cout << "  2) Start P vs IA Game (1 players/Work in progress currently unavailable)" << std::endl;
+	std::cout << "  3) Basic Rules" << std::endl;
+	std::cout << "  4) Exit Game" << std::endl;
+	std::cout << std::endl;
+	std::cout << "  Select Option(1-4): ";
+	std::cin >> input;
+	while (!std::cin.good()||input<1||input>4)
+	{
+		std::cin.clear();
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		system("CLS");
+		std::cout << "   SIMPLE CHESS   " << std::endl;
+		std::cout << std::endl;
+		std::cout << "  1) Start P vs P Game (2 players)" << std::endl;
+		std::cout << "  2) Start P vs IA Game (1 players/Work in progress currently unavailable)" << std::endl;
+		std::cout << "  3) Basic Rules" << std::endl;
+		std::cout << "  4) Exit Game" << std::endl;
+		std::cout << std::endl;
+		std::cout << "  Select Option(1-4): ";
+		std::cin >> input;
+	}
+	switch (input)
+	{
+	case 1:
+		break;
+	case 2:
+		std::cout << "NOT READY YET .... , select any other option" << std::endl;
+		system("pause");
+		goto start;
+	case 3:
+		system("CLS");
+		std::cout << "White Player (UPERCASE)--> P,Q,K,R,B,H" << std::endl;
+		std::cout << "BLACK Player (LOWERCASE)--> p,q,k,r,b,h" << std::endl;
+		std::cout << std::endl;
+		std::cout << "Pieces List/ Movement:" << std::endl;
+		std::cout << std::endl;
+		std::cout << "PAWN (P/p) --> Moves one square at a time, it can only move forward, it can only capture enemy pieces diagonally (one square to the left/Right and one up),if it has not moved yet they can start by moving two squares forward, it can do an en passant capture this happens when the opponent pawn does a double move start then if you have a pawn that could have killed the enemy pawn if it had moved only one square then you can still caputre it, if it reaches the final square on the board you can promote it to whatever piece you want." << std::endl;
+		std::cout << "Rook (R/r) --> Moves vertically and horizontally the amount of squares you want without passing through any pieces." << std::endl;
+		std::cout << "Horse (H/h) --> Moves in an L shape, two squares horizontally and one vertically or two squares vertically and one square horizontally." << std::endl;
+		std::cout << "Bishop (B/b) --> Moves Diagonally the amount of squares you want without passing through any pieces." << std::endl;
+		std::cout << "Queen (Q/q) --> Moves like a rook and a bishop, it can move diagonally/vertically/horizontally the amount of squares you want without passing through any pieces" << std::endl;
+		std::cout << "King (K/k) --> Can only move one square in any direction, you can castle the king queen side or king side, this means that if there are no pieces between your king and either of your rooks you can move yout king two squares in the direction you are castling and put the rook on that side next to the king(if you castled king side then your king will go from e1 to g1 and the rook will gor from h1 to f1), this can only be done if neither the king and rook that you are using to castle have moved that game and if your king isn't in check." << std::endl;
+		std::cout << std::endl;
+		std::cout << "Basic Knowledge:" << std::endl;
+		std::cout << std::endl;
+		std::cout << "Check --> Your King is being attacked by an enemy piece you must move your king to a safe spot or kill the atacker or interpose the attack with another piece." << std::endl;
+		std::cout << "Checkmate --> Your King is being attacked and you can't do anything to protect him, you lost the game." << std::endl;
+		std::cout << "Stalemate --> The player that has to make a move can't move any of his pieces, it is a tie." << std::endl;
+		system("pause");
+		goto start;
+	case 4:
+	return 4;
+	}
+	return 0;
+}
 void Create_Grid(char Grid[][8])
 {
 	//Create Empty Board
@@ -77,7 +140,7 @@ void Display_Grid(char Grid[][8])
 	std::cout << std::endl;
 	for (int i = 0; i < 8; i++)
 	{
-		std::cout << (8-i) << " " << VERTICAL_LINE << " ";
+		std::cout << (8 - i) << " " << VERTICAL_LINE << " ";
 		for (int j = 0; j < 8; j++)
 		{
 			std::cout << Grid[i][j] << " ";
@@ -129,13 +192,14 @@ bool Check_ADVANCED(char Grid[][8], char x, char y, char j, char z, char player)
 		else if (piece == BLACK_PAWN && x > j)
 			return false;
 		//Check posible double move if first time moving pawn
-		if (abs(x - j) == 2 && (y - z) == 0)
+		if (abs(x - j) == 2 && abs(y - z) == 0)
 		{
 			if (player == WHITE_PLAYER && x == 6)
 				goto CHECK_CHECK;
 			else if (player == BLACK_PLAYER && x == 1)
 				goto CHECK_CHECK;
 		}
+		//Check en passant
 		//Check that the move is not further than one square and if it goes diagonally there is not an empty square and can t kill enemies just walking forward
 		if (abs(y - z) > 1 || abs(x - j) > 1 || ((y != z) && (dest == EMPTY_SQUARE)) || ((y == z) && (dest != EMPTY_SQUARE)))
 			return false;
@@ -916,10 +980,13 @@ bool Check_Win(char Grid[][8], char player)
 {
 	if (Player_In_Check(Grid, player) == true)
 	{
+		if (player == BLACK_PLAYER) std::cout << "White player (UPERCASE/ALL CAPS) is in CHECK! " << std::endl;
+		else std::cout << "Black player (LOWER CASE) is in CHECK! " << std::endl;
+
 		//Anlaisis Checkmate
 		//look all king moves and all the other pieces moves to see if they can cover the check
 		int x, y, s, t;
-		char pos,prev;
+		char pos, prev;
 		if (player == WHITE_PLAYER)
 		{
 			//First locate the king
@@ -1454,7 +1521,6 @@ bool Check_Win(char Grid[][8], char player)
 					}
 				}
 			}
-			return true;
 		}
 		else if (player == BLACK_PLAYER)
 		{
@@ -1989,10 +2055,8 @@ bool Check_Win(char Grid[][8], char player)
 					}
 				}
 			}
-			return true;
 		}
-		if (player == BLACK_PLAYER) std::cout << "White player (UPERCASE/ALL CAPS) is in CHECK! " << std::endl;
-		else std::cout << "Black player (LOWER CASE) is in CHECK! " << std::endl;
+		return true;
 	}
 	else
 	{
@@ -2013,13 +2077,13 @@ start:
 	std::cin >> y;
 	std::cout << "Row = ";
 	std::cin >> x;
-	while (!std::cin.good() || x < 49 || x >(7+ 49) || y < 97 || y >= (8 + 97) || !Check_Start(Grid, 56-x, y - 97, PlayerX))
+	while (!std::cin.good() || x < 49 || x >(7 + 49) || y < 97 || y >= (8 + 97) || !Check_Start(Grid, 56 - x, y - 97, PlayerX))
 	{
 		std::cin.clear();
 		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 		system("CLS");
 		Display_Grid(Grid);
-		Player_In_Check(Grid, PlayerX % 2 + 1);
+		Check_Win(Grid, PlayerX % 2 + 1);
 		if (PlayerX == WHITE_PLAYER)
 			std::cout << "----White to move(UPERCASE)----" << std::endl;
 		else std::cout << "----Black to move(lowercase)----" << std::endl;
@@ -2037,7 +2101,7 @@ start:
 	{
 		system("CLS");
 		Display_Grid(Grid);
-		Player_In_Check(Grid, PlayerX % 2 + 1);
+		Check_Win(Grid, PlayerX % 2 + 1);
 		goto start;
 	}
 	std::cout << "Row = ";
@@ -2046,16 +2110,16 @@ start:
 	{
 		system("CLS");
 		Display_Grid(Grid);
-		Player_In_Check(Grid, PlayerX % 2 + 1);
+		Check_Win(Grid, PlayerX % 2 + 1);
 		goto start;
-	}	
-	while (!std::cin.good() || j < 49 || j > (49+7) || z < 97 || z >= (8 + 97) || !Check_END(Grid, 56-x, y - 97, 56-j, z - 97, PlayerX))
+	}
+	while (!std::cin.good() || j < 49 || j >(49 + 7) || z < 97 || z >= (8 + 97) || !Check_END(Grid, 56 - x, y - 97, 56 - j, z - 97, PlayerX))
 	{
 		std::cin.clear();
 		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 		system("CLS");
 		Display_Grid(Grid);
-		Player_In_Check(Grid, PlayerX % 2 + 1);
+		Check_Win(Grid, PlayerX % 2 + 1);
 		if (PlayerX == WHITE_PLAYER)
 			std::cout << "----White to move(UPERCASE)----" << std::endl;
 		else std::cout << "----Black to move(lowercase)----" << std::endl;
@@ -2067,7 +2131,7 @@ start:
 		{
 			system("CLS");
 			Display_Grid(Grid);
-			Player_In_Check(Grid, PlayerX % 2 + 1);
+			Check_Win(Grid, PlayerX % 2 + 1);
 			goto start;
 		}
 		std::cout << "Row = ";
@@ -2076,7 +2140,7 @@ start:
 		{
 			system("CLS");
 			Display_Grid(Grid);
-			Player_In_Check(Grid, PlayerX % 2 + 1);
+			Check_Win(Grid, PlayerX % 2 + 1);
 			goto start;
 		}
 	}
@@ -2087,6 +2151,10 @@ int main()
 	char Grid[8][8];
 	char player = WHITE_PLAYER;
 	bool win = false;
+	int end;
+	start:
+	end=StartUP_menu();
+	if (end == 4) goto end;
 	Create_Grid(Grid);
 	Display_Grid(Grid);
 	while (!win)
@@ -2094,15 +2162,16 @@ int main()
 		Player_Choice(Grid, player);
 		Display_Grid(Grid);
 		win = Check_Win(Grid, player);
-		Display_Grid(Grid);
 		player = player % 2 + 1;
 	}
 	Display_Grid(Grid);
-	if (player==WHITE_PLAYER && win==true)
+	if (player == WHITE_PLAYER && win == true)
 		std::cout << "Black Player WON!!!! CHECKMATE!!!";
 	else
 		std::cout << "White Player WON!!!! CHECKMATE!!!";
 	//Tie remaining
 	system("pause");
+	goto start;
+	end:
 	return 0;
 }
