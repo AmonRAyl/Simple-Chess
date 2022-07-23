@@ -77,7 +77,7 @@ void Display_Grid(char Grid[][8])
 	std::cout << std::endl;
 	for (int i = 0; i < 8; i++)
 	{
-		std::cout << (char)(i + 97) << " " << VERTICAL_LINE << " ";
+		std::cout << (8-i) << " " << VERTICAL_LINE << " ";
 		for (int j = 0; j < 8; j++)
 		{
 			std::cout << Grid[i][j] << " ";
@@ -116,7 +116,7 @@ bool Check_ADVANCED(char Grid[][8], char x, char y, char j, char z, char player)
 	bool Castle_Left = false;
 	bool Castle_Right = false;
 	bool King_Move = false;
-	char aux,aux_piece;
+	char aux, aux_piece;
 	int m, s, t;
 	//Basic movement and Captures
 	switch (piece)
@@ -163,7 +163,7 @@ bool Check_ADVANCED(char Grid[][8], char x, char y, char j, char z, char player)
 				result = !(white_promote ^ black_promote);
 			}
 			Grid[x][y] = piece;
-		}//ga ea bh dh ea da dh eh da ca eh fh ca bb fh gg bb aa
+		}
 		break;
 	case WHITE_HORSE:
 	case BLACK_HORSE:
@@ -261,7 +261,7 @@ bool Check_ADVANCED(char Grid[][8], char x, char y, char j, char z, char player)
 	case WHITE_KING:
 	case BLACK_KING:
 		//Basic movement
-		if (abs(j - x) > 1 || abs(y - z) > 2 || (abs(y - z) > 1 && y!=4))
+		if (abs(j - x) > 1 || abs(y - z) > 2 || (abs(y - z) > 1 && y != 4))
 			return false;
 		//Castle
 		if (abs(y - z) == 2 && abs(j - x) == 0 && (x == 0 || x == 7) && y == 4)
@@ -395,7 +395,7 @@ CHECK_CHECK:
 				if (Grid[p][m] == BLACK_ROOK || Grid[p][m] == BLACK_QUEEN)
 				{
 					//Look Right
-					for (int t = m+1; t < 8; t++)
+					for (int t = m + 1; t < 8; t++)
 					{
 						if (Grid[p][t] != EMPTY_SQUARE && Grid[p][t] != WHITE_KING)
 							break;
@@ -403,7 +403,7 @@ CHECK_CHECK:
 							goto restore;
 					}
 					//Look Left
-					for (int t = m-1; t >= 0; t--)
+					for (int t = m - 1; t >= 0; t--)
 					{
 						if (Grid[p][t] != EMPTY_SQUARE && Grid[p][t] != WHITE_KING)
 							break;
@@ -411,7 +411,7 @@ CHECK_CHECK:
 							goto restore;
 					}
 					//Look Up
-					for (int t = p+1; t < 8; t++)
+					for (int t = p + 1; t < 8; t++)
 					{
 						if (Grid[t][m] != EMPTY_SQUARE && Grid[t][m] != WHITE_KING)
 							break;
@@ -419,7 +419,7 @@ CHECK_CHECK:
 							goto restore;
 					}
 					//Look Down
-					for (int t = p-1; t >= 0; t--)
+					for (int t = p - 1; t >= 0; t--)
 					{
 						if (Grid[t][m] != EMPTY_SQUARE && Grid[t][m] != WHITE_KING)
 							break;
@@ -460,7 +460,7 @@ CHECK_CHECK:
 		}
 
 		//update castle variables
-		
+
 		if (WHITE_CASTLE_KING == true) WHITE_CASTLE_KING = !King_Move;
 		if (WHITE_CASTLE_LEFT == true) WHITE_CASTLE_LEFT = !Castle_Left;
 		if (WHITE_CASTLE_RIGHT == true) WHITE_CASTLE_RIGHT = !Castle_Right;
@@ -528,7 +528,7 @@ CHECK_CHECK:
 						{
 							if (Grid[t][s] != EMPTY_SQUARE && Grid[t][s] != BLACK_KING)
 								break;
-							else if(Grid[t][s] == BLACK_KING)
+							else if (Grid[t][s] == BLACK_KING)
 								goto restore;
 							s++;
 							t--;
@@ -538,7 +538,7 @@ CHECK_CHECK:
 				if (Grid[p][m] == WHITE_ROOK || Grid[p][m] == WHITE_QUEEN)
 				{
 					//Look Right
-					for (int t = m+1; t < 8; t++)
+					for (int t = m + 1; t < 8; t++)
 					{
 						if (Grid[p][t] != EMPTY_SQUARE && Grid[p][t] != BLACK_KING)
 							break;
@@ -546,7 +546,7 @@ CHECK_CHECK:
 							goto restore;
 					}
 					//Look Left
-					for (int t = m-1; t >= 0; t--)
+					for (int t = m - 1; t >= 0; t--)
 					{
 						if (Grid[p][t] != EMPTY_SQUARE && Grid[p][t] != BLACK_KING)
 							break;
@@ -554,7 +554,7 @@ CHECK_CHECK:
 							goto restore;
 					}
 					//Look Up
-					for (int t = p+1; t < 8; t++)
+					for (int t = p + 1; t < 8; t++)
 					{
 						if (Grid[t][m] != EMPTY_SQUARE && Grid[t][m] != BLACK_KING)
 							break;
@@ -562,7 +562,7 @@ CHECK_CHECK:
 							goto restore;
 					}
 					//Look Down
-					for (int t = p-1; t >= 0; t--)
+					for (int t = p - 1; t >= 0; t--)
 					{
 						if (Grid[t][m] != EMPTY_SQUARE && Grid[t][m] != BLACK_KING)
 							break;
@@ -918,9 +918,9 @@ bool Check_Win(char Grid[][8], char player)
 	{
 		//Anlaisis Checkmate
 		//look all king moves and all the other pieces moves to see if they can cover the check
-		int x, y,s,t;
-		char pos;
-		if (player==WHITE_PLAYER)
+		int x, y, s, t;
+		char pos,prev;
+		if (player == WHITE_PLAYER)
 		{
 			//First locate the king
 			for (x = 0; x < 8; x++)
@@ -938,70 +938,80 @@ bool Check_Win(char Grid[][8], char player)
 					Grid[x][y] = EMPTY_SQUARE;
 					if (Player_In_Check(Grid, player) == false)
 					{
-						Grid[x + 1][y] = EMPTY_SQUARE;
+						Grid[x + 1][y] = pos;
 						Grid[x][y] = BLACK_KING;
 						return false;
 					}
+					Grid[x + 1][y] = pos;
+					Grid[x][y] = BLACK_KING;
 				}
 			}
-			if (x + 1 < 8 && y-1>=0)
+			if (x + 1 < 8 && y - 1 >= 0)
 			{
-				pos = Grid[x + 1][y-1];
+				pos = Grid[x + 1][y - 1];
 				if (pos != BLACK_BISHOP && pos != BLACK_HORSE && pos != BLACK_ROOK && pos != BLACK_QUEEN && pos != BLACK_PAWN)
 				{
 					Grid[x + 1][y - 1] = BLACK_KING;
 					Grid[x][y] = EMPTY_SQUARE;
 					if (Player_In_Check(Grid, player) == false)
 					{
-						Grid[x + 1][y-1] = EMPTY_SQUARE;
+						Grid[x + 1][y - 1] = pos;
 						Grid[x][y] = BLACK_KING;
 						return false;
 					}
+					Grid[x + 1][y - 1] = pos;
+					Grid[x][y] = BLACK_KING;
 				}
 			}
 			if (x + 1 < 8 && y + 1 < 8)
 			{
-				pos = Grid[x + 1][y+1];
+				pos = Grid[x + 1][y + 1];
 				if (pos != BLACK_BISHOP && pos != BLACK_HORSE && pos != BLACK_ROOK && pos != BLACK_QUEEN && pos != BLACK_PAWN)
 				{
 					Grid[x + 1][y + 1] = BLACK_KING;
 					Grid[x][y] = EMPTY_SQUARE;
 					if (Player_In_Check(Grid, player) == false)
 					{
-						Grid[x + 1][y+1] = EMPTY_SQUARE;
+						Grid[x + 1][y + 1] = pos;
 						Grid[x][y] = BLACK_KING;
 						return false;
 					}
+					Grid[x + 1][y + 1] = pos;
+					Grid[x][y] = BLACK_KING;
 				}
 			}
 			if (y + 1 < 8)
 			{
-				pos = Grid[x][y+1];
+				pos = Grid[x][y + 1];
 				if (pos != BLACK_BISHOP && pos != BLACK_HORSE && pos != BLACK_ROOK && pos != BLACK_QUEEN && pos != BLACK_PAWN)
 				{
 					Grid[x][y + 1] = BLACK_KING;
 					Grid[x][y] = EMPTY_SQUARE;
 					if (Player_In_Check(Grid, player) == false)
 					{
-						Grid[x ][y + 1] = EMPTY_SQUARE;
+						Grid[x][y + 1] = pos;
 						Grid[x][y] = BLACK_KING;
 						return false;
 					}
+					Grid[x][y + 1] = pos;
+					Grid[x][y] = BLACK_KING;
 				}
 			}
 			if (y - 1 >= 0)
 			{
-				pos = Grid[x][y-1];
+				pos = Grid[x][y - 1];
 				if (pos != BLACK_BISHOP && pos != BLACK_HORSE && pos != BLACK_ROOK && pos != BLACK_QUEEN && pos != BLACK_PAWN)
 				{
 					Grid[x][y - 1] = BLACK_KING;
 					Grid[x][y] = EMPTY_SQUARE;
 					if (Player_In_Check(Grid, player) == false)
 					{
-						Grid[x][y - 1] = EMPTY_SQUARE;
+						Grid[x][y - 1] = pos;
 						Grid[x][y] = BLACK_KING;
 						return false;
 					}
+					Grid[x][y - 1] = pos;
+					Grid[x][y] = BLACK_KING;
 				}
 			}
 			if (x - 1 >= 0)
@@ -1013,10 +1023,12 @@ bool Check_Win(char Grid[][8], char player)
 					Grid[x][y] = EMPTY_SQUARE;
 					if (Player_In_Check(Grid, player) == false)
 					{
-						Grid[x - 1][y] = EMPTY_SQUARE;
+						Grid[x - 1][y] = pos;
 						Grid[x][y] = BLACK_KING;
 						return false;
 					}
+					Grid[x - 1][y] = pos;
+					Grid[x][y] = BLACK_KING;
 				}
 			}
 			if (x - 1 >= 0 && y - 1 >= 0)
@@ -1028,10 +1040,12 @@ bool Check_Win(char Grid[][8], char player)
 					Grid[x][y] = EMPTY_SQUARE;
 					if (Player_In_Check(Grid, player) == false)
 					{
-						Grid[x - 1][y-1] = EMPTY_SQUARE;
+						Grid[x - 1][y - 1] = pos;
 						Grid[x][y] = BLACK_KING;
 						return false;
 					}
+					Grid[x - 1][y - 1] = pos;
+					Grid[x][y] = BLACK_KING;
 				}
 			}
 			if (x - 1 >= 0 && y + 1 < 8)
@@ -1042,12 +1056,13 @@ bool Check_Win(char Grid[][8], char player)
 					Grid[x - 1][y + 1] = BLACK_KING;
 					Grid[x][y] = EMPTY_SQUARE;
 					if (Player_In_Check(Grid, player) == false)
-						if (Player_In_Check(Grid, player) == false)
-						{
-							Grid[x - 1][y + 1] = EMPTY_SQUARE;
-							Grid[x][y] = BLACK_KING;
-							return false;
-						}
+					{
+						Grid[x - 1][y + 1] = pos;
+						Grid[x][y] = BLACK_KING;
+						return false;
+					}
+					Grid[x - 1][y + 1] = pos;
+					Grid[x][y] = BLACK_KING;
 				}
 			}
 			//Check the movement of the other pieces
@@ -1055,24 +1070,26 @@ bool Check_Win(char Grid[][8], char player)
 			{
 				for (int q = 0; q < 8; q++)
 				{
-					if (Grid[j][q]!=EMPTY_SQUARE)
+					if (Grid[j][q] != EMPTY_SQUARE)
 					{
 						if (Grid[j][q] == BLACK_PAWN)
 						{
 							//Forward Pawn Move (haven t checked if double starting move works)
-							if (j + 1 < 8 && Grid[j +1][q]==EMPTY_SQUARE)
+							if (j + 1 < 8 && Grid[j + 1][q] == EMPTY_SQUARE)
 							{
 								Grid[j + 1][q] = BLACK_PAWN;
 								Grid[j][q] = EMPTY_SQUARE;
 								if (Player_In_Check(Grid, player) == false)
 								{
-									Grid[j + 1][q - 1] = EMPTY_SQUARE;
+									Grid[j + 1][q] = EMPTY_SQUARE;
 									Grid[j][q] = BLACK_PAWN;
 									return false;
 								}
+								Grid[j + 1][q] = EMPTY_SQUARE;
+								Grid[j][q] = BLACK_PAWN;
 							}
 							//Capture left
-							if (j + 1 < 8 && q - 1 >= 0 )
+							if (j + 1 < 8 && q - 1 >= 0)
 							{
 								pos = Grid[j + 1][q - 1];
 								if (pos == WHITE_BISHOP || pos == WHITE_HORSE || pos == WHITE_QUEEN || pos == WHITE_PAWN)
@@ -1085,6 +1102,8 @@ bool Check_Win(char Grid[][8], char player)
 										Grid[j][q] = BLACK_PAWN;
 										return false;
 									}
+									Grid[j + 1][q - 1] = pos;
+									Grid[j][q] = BLACK_PAWN;
 								}
 							}
 							//Capture right
@@ -1101,6 +1120,8 @@ bool Check_Win(char Grid[][8], char player)
 										Grid[j][q] = BLACK_PAWN;
 										return false;
 									}
+									Grid[j + 1][q + 1] = pos;
+									Grid[j][q] = BLACK_PAWN;
 								}
 							}
 
@@ -1118,6 +1139,8 @@ bool Check_Win(char Grid[][8], char player)
 									Grid[j][q] = BLACK_HORSE;
 									return false;
 								}
+								Grid[j + 2][q + 1] = pos;
+								Grid[j][q] = BLACK_HORSE;
 							}
 							if (j + 2 < 8 && q - 1 >= 0)
 							{
@@ -1130,8 +1153,10 @@ bool Check_Win(char Grid[][8], char player)
 									Grid[j][q] = BLACK_PAWN;
 									return false;
 								}
-							}							
-							if (j - 2 >= 0 && q + 1 < 8 )
+								Grid[j + 2][q - 1] = pos;
+								Grid[j][q] = BLACK_PAWN;
+							}
+							if (j - 2 >= 0 && q + 1 < 8)
 							{
 								pos = Grid[j - 2][q + 1];
 								Grid[j - 2][q + 1] = BLACK_HORSE;
@@ -1142,8 +1167,10 @@ bool Check_Win(char Grid[][8], char player)
 									Grid[j][q] = BLACK_HORSE;
 									return false;
 								}
+								Grid[j - 2][q + 1] = pos;
+								Grid[j][q] = BLACK_HORSE;
 							}
-							if (j - 2 >= 0 && q - 1 >= 0 )
+							if (j - 2 >= 0 && q - 1 >= 0)
 							{
 								pos = Grid[j - 2][q - 1];
 								Grid[j - 2][q - 1] = BLACK_HORSE;
@@ -1154,7 +1181,9 @@ bool Check_Win(char Grid[][8], char player)
 									Grid[j][q] = BLACK_HORSE;
 									return false;
 								}
-							}							
+								Grid[j - 2][q - 1] = pos;
+								Grid[j][q] = BLACK_HORSE;
+							}
 							if (j + 1 < 8 && q + 2 < 8)
 							{
 								pos = Grid[j + 1][q + 2];
@@ -1166,6 +1195,8 @@ bool Check_Win(char Grid[][8], char player)
 									Grid[j][q] = BLACK_HORSE;
 									return false;
 								}
+								Grid[j + 1][q + 2] = pos;
+								Grid[j][q] = BLACK_HORSE;
 							}
 							if (j + 1 < 8 && q - 2 >= 0)
 							{
@@ -1178,6 +1209,8 @@ bool Check_Win(char Grid[][8], char player)
 									Grid[j][q] = BLACK_HORSE;
 									return false;
 								}
+								Grid[j + 1][q - 2] = pos;
+								Grid[j][q] = BLACK_HORSE;
 							}
 							if (j - 1 >= 0 && q + 2 < 8)
 							{
@@ -1190,6 +1223,8 @@ bool Check_Win(char Grid[][8], char player)
 									Grid[j][q] = BLACK_HORSE;
 									return false;
 								}
+								Grid[j - 1][q + 2] = pos;
+								Grid[j][q] = BLACK_HORSE;
 							}
 							if (j - 1 >= 0 && q - 2 >= 0)
 							{
@@ -1202,6 +1237,8 @@ bool Check_Win(char Grid[][8], char player)
 									Grid[j][q] = BLACK_HORSE;
 									return false;
 								}
+								Grid[j - 1][q - 2] = pos;
+								Grid[j][q] = BLACK_HORSE;
 							}
 						}
 						else if (Grid[j][q] == BLACK_BISHOP || Grid[j][q] == BLACK_QUEEN)
@@ -1215,18 +1252,21 @@ bool Check_Win(char Grid[][8], char player)
 								while (t >= 0 && s >= 0)
 								{
 									pos = Grid[t][s];
-									if (pos != EMPTY_SQUARE && ((abs(t - x) != abs(s - y))&& x!=t && y!=s))
+									prev = Grid[j][q];
+									if (pos != EMPTY_SQUARE && ((abs(t - x) != abs(s - y)) && x != t && y != s))
 										break;
-									else if ((pos==EMPTY_SQUARE ||pos == WHITE_BISHOP || pos == WHITE_HORSE || pos == WHITE_QUEEN || pos == WHITE_PAWN)&& ((abs(t - x) == abs(s - y)) || x == t || y == s))
+									else if ((pos == EMPTY_SQUARE || pos == WHITE_BISHOP || pos == WHITE_HORSE || pos == WHITE_QUEEN || pos == WHITE_PAWN) && ((abs(t - x) == abs(s - y)) || x == t || y == s))
 									{
 										Grid[t][s] = Grid[j][q];
 										Grid[j][q] = EMPTY_SQUARE;
 										if (Player_In_Check(Grid, player) == false)
 										{
-											Grid[t][s] = EMPTY_SQUARE;
-											Grid[j][q] = BLACK_HORSE;
+											Grid[t][s] = pos;
+											Grid[j][q] = prev;
 											return false;
 										}
+										Grid[t][s] = pos;
+										Grid[j][q] = prev;
 									}
 									s--;
 									t--;
@@ -1240,10 +1280,23 @@ bool Check_Win(char Grid[][8], char player)
 								while (t < 8 && s < 8)
 								{
 									pos = Grid[t][s];
+									prev = Grid[j][q];
 									if (pos != EMPTY_SQUARE && ((abs(t - x) != abs(s - y)) || x == t || y == s))
 										break;
-									else if (pos == WHITE_BISHOP || pos == WHITE_HORSE || pos == WHITE_QUEEN || pos == WHITE_PAWN)
-										return false;
+									else if ((pos == EMPTY_SQUARE || pos == WHITE_BISHOP || pos == WHITE_HORSE || pos == WHITE_QUEEN || pos == WHITE_PAWN) && ((abs(t - x) == abs(s - y)) || x == t || y == s))
+									{
+										Grid[t][s] = Grid[j][q];
+										Grid[j][q] = EMPTY_SQUARE;
+										if (Player_In_Check(Grid, player) == false)
+										{
+											Grid[t][s] = pos;
+											Grid[j][q] = prev;
+											return false;
+										}
+										Grid[t][s] = pos;
+										Grid[j][q] = prev;
+									}
+									else break;
 									s++;
 									t++;
 								}
@@ -1256,10 +1309,23 @@ bool Check_Win(char Grid[][8], char player)
 								while (s >= 0 && t < 8)
 								{
 									pos = Grid[t][s];
+									prev = Grid[j][q];
 									if (pos != EMPTY_SQUARE && ((abs(t - x) != abs(s - y)) || x == t || y == s))
 										break;
-									else if (pos == WHITE_BISHOP || pos == WHITE_HORSE || pos == WHITE_QUEEN || pos == WHITE_PAWN)
-										return false;
+									else if ((pos == EMPTY_SQUARE || pos == WHITE_BISHOP || pos == WHITE_HORSE || pos == WHITE_QUEEN || pos == WHITE_PAWN) && ((abs(t - x) == abs(s - y)) || x == t || y == s))
+									{
+										Grid[t][s] = Grid[j][q];
+										Grid[j][q] = EMPTY_SQUARE;
+										if (Player_In_Check(Grid, player) == false)
+										{
+											Grid[t][s] = pos;
+											Grid[j][q] = prev;
+											return false;
+										}
+										Grid[t][s] = pos;
+										Grid[j][q] = prev;
+									}
+									else break;
 									s--;
 									t++;
 								}
@@ -1272,52 +1338,117 @@ bool Check_Win(char Grid[][8], char player)
 								while (s < 8 && t >= 0)
 								{
 									pos = Grid[t][s];
+									prev = Grid[j][q];
 									if (pos != EMPTY_SQUARE && ((abs(t - x) != abs(s - y)) || x == t || y == s))
 										break;
-									else if (pos == WHITE_BISHOP || pos == WHITE_HORSE || pos == WHITE_QUEEN || pos == WHITE_PAWN)
-										return false;
+									else if ((pos == EMPTY_SQUARE || pos == WHITE_BISHOP || pos == WHITE_HORSE || pos == WHITE_QUEEN || pos == WHITE_PAWN) && ((abs(t - x) == abs(s - y)) || x == t || y == s))
+									{
+										Grid[t][s] = Grid[j][q];
+										Grid[j][q] = EMPTY_SQUARE;
+										if (Player_In_Check(Grid, player) == false)
+										{
+											Grid[t][s] = pos;
+											Grid[j][q] = prev;
+											return false;
+										}
+										Grid[t][s] = pos;
+										Grid[j][q] = prev;
+									}
+									else break;
 									s++;
 									t--;
 								}
 							}
 						}
-						if (Grid[j][q] == BLACK_ROOK ||Grid[j][q] == BLACK_QUEEN)
+						if (Grid[j][q] == BLACK_ROOK || Grid[j][q] == BLACK_QUEEN)
 						{
 							//Look Right
 							for (int t = q + 1; t < 8; t++)
 							{
 								pos = Grid[j][t];
-								if (pos != EMPTY_SQUARE && ((abs(j - x) != abs(t - y))||x==j||y==t))
+								prev = Grid[j][q];
+								if (pos != EMPTY_SQUARE && ((abs(j - x) != abs(t - y)) || x == j || y == t))
 									break;
-								else if (pos == WHITE_BISHOP || pos == WHITE_HORSE || pos == WHITE_QUEEN || pos == WHITE_PAWN)
-									return false;
+								else if ((pos == EMPTY_SQUARE || pos == WHITE_BISHOP || pos == WHITE_HORSE || pos == WHITE_QUEEN || pos == WHITE_PAWN) && ((abs(t - x) == abs(s - y)) || x == t || y == s))
+								{
+									Grid[j][t] = Grid[j][q];
+									Grid[j][q] = EMPTY_SQUARE;
+									if (Player_In_Check(Grid, player) == false)
+									{
+										Grid[j][t] = pos;
+										Grid[j][q] = prev;
+										return false;
+									}
+									Grid[j][t] = pos;
+									Grid[j][q] = prev;
+								}
+								else break;
 							}
 							//Look Left
 							for (int t = q - 1; t >= 0; t--)
 							{
 								pos = Grid[j][t];
+								prev = Grid[j][q];
 								if (pos != EMPTY_SQUARE && ((abs(j - x) != abs(t - y)) || x == j || y == t))
 									break;
-								else if (pos == WHITE_BISHOP || pos == WHITE_HORSE || pos == WHITE_QUEEN || pos == WHITE_PAWN)
-									return false;
+								else if ((pos == EMPTY_SQUARE || pos == WHITE_BISHOP || pos == WHITE_HORSE || pos == WHITE_QUEEN || pos == WHITE_PAWN) && ((abs(t - x) == abs(s - y)) || x == t || y == s))
+								{
+									Grid[j][t] = Grid[j][q];
+									Grid[j][q] = EMPTY_SQUARE;
+									if (Player_In_Check(Grid, player) == false)
+									{
+										Grid[j][t] = pos;
+										Grid[j][q] = prev;
+										return false;
+									}
+									Grid[j][t] = pos;
+									Grid[j][q] = prev;
+								}
+								else break;
 							}
 							//Look Up
 							for (int t = j + 1; t < 8; t++)
 							{
 								pos = Grid[t][q];
+								prev = Grid[j][q];
 								if (pos != EMPTY_SQUARE && ((abs(j - x) != abs(t - y)) || x == t || y == q))
 									break;
-								else if (pos == WHITE_BISHOP || pos == WHITE_HORSE || pos == WHITE_QUEEN || pos == WHITE_PAWN)
-									return false;
+								else if ((pos == EMPTY_SQUARE || pos == WHITE_BISHOP || pos == WHITE_HORSE || pos == WHITE_QUEEN || pos == WHITE_PAWN) && ((abs(t - x) == abs(s - y)) || x == t || y == s))
+								{
+									Grid[t][q] = Grid[j][q];
+									Grid[j][q] = EMPTY_SQUARE;
+									if (Player_In_Check(Grid, player) == false)
+									{
+										Grid[t][q] = pos;
+										Grid[j][q] = prev;
+										return false;
+									}
+									Grid[t][q] = pos;
+									Grid[j][q] = prev;
+								}
+								else break;
 							}
 							//Look Down
 							for (int t = j - 1; t >= 0; t--)
 							{
 								pos = Grid[t][q];
+								prev = Grid[j][q];
 								if (pos != EMPTY_SQUARE && ((abs(j - x) != abs(t - y)) || x == t || y == q))
 									break;
-								else if (pos == WHITE_BISHOP || pos == WHITE_HORSE || pos == WHITE_QUEEN || pos == WHITE_PAWN)
-									return false;
+								else if ((pos == EMPTY_SQUARE || pos == WHITE_BISHOP || pos == WHITE_HORSE || pos == WHITE_QUEEN || pos == WHITE_PAWN) && ((abs(t - x) == abs(s - y)) || x == t || y == s))
+								{
+									Grid[t][q] = Grid[j][q];
+									Grid[j][q] = EMPTY_SQUARE;
+									if (Player_In_Check(Grid, player) == false)
+									{
+										Grid[t][q] = pos;
+										Grid[j][q] = prev;
+										return false;
+									}
+									Grid[t][q] = pos;
+									Grid[j][q] = prev;
+								}
+								else break;
 							}
 						}
 					}
@@ -1341,7 +1472,13 @@ bool Check_Win(char Grid[][8], char player)
 					Grid[x + 1][y] = WHITE_KING;
 					Grid[x][y] = EMPTY_SQUARE;
 					if (Player_In_Check(Grid, player) == false)
+					{
+						Grid[x + 1][y] = pos;
+						Grid[x][y] = WHITE_KING;
 						return false;
+					}
+					Grid[x + 1][y] = pos;
+					Grid[x][y] = WHITE_KING;
 				}
 			}
 			if (x + 1 < 8 && y - 1 >= 0)
@@ -1352,7 +1489,13 @@ bool Check_Win(char Grid[][8], char player)
 					Grid[x + 1][y - 1] = WHITE_KING;
 					Grid[x][y] = EMPTY_SQUARE;
 					if (Player_In_Check(Grid, player) == false)
+					{
+						Grid[x + 1][y - 1] = pos;
+						Grid[x][y] = WHITE_KING;
 						return false;
+					}
+					Grid[x + 1][y - 1] = pos;
+					Grid[x][y] = WHITE_KING;
 				}
 			}
 			if (x + 1 < 8 && y + 1 < 8)
@@ -1363,7 +1506,13 @@ bool Check_Win(char Grid[][8], char player)
 					Grid[x + 1][y + 1] = WHITE_KING;
 					Grid[x][y] = EMPTY_SQUARE;
 					if (Player_In_Check(Grid, player) == false)
+					{
+						Grid[x + 1][y + 1] = pos;
+						Grid[x][y] = WHITE_KING;
 						return false;
+					}
+					Grid[x + 1][y + 1] = pos;
+					Grid[x][y] = WHITE_KING;
 				}
 			}
 			if (y + 1 < 8)
@@ -1374,7 +1523,13 @@ bool Check_Win(char Grid[][8], char player)
 					Grid[x][y + 1] = WHITE_KING;
 					Grid[x][y] = EMPTY_SQUARE;
 					if (Player_In_Check(Grid, player) == false)
+					{
+						Grid[x][y + 1] = pos;
+						Grid[x][y] = WHITE_KING;
 						return false;
+					}
+					Grid[x][y + 1] = pos;
+					Grid[x][y] = WHITE_KING;
 				}
 			}
 			if (y - 1 >= 0)
@@ -1385,7 +1540,13 @@ bool Check_Win(char Grid[][8], char player)
 					Grid[x][y - 1] = WHITE_KING;
 					Grid[x][y] = EMPTY_SQUARE;
 					if (Player_In_Check(Grid, player) == false)
+					{
+						Grid[x][y - 1] = pos;
+						Grid[x][y] = WHITE_KING;
 						return false;
+					}
+					Grid[x][y - 1] = pos;
+					Grid[x][y] = WHITE_KING;
 				}
 			}
 			if (x - 1 >= 0)
@@ -1396,7 +1557,13 @@ bool Check_Win(char Grid[][8], char player)
 					Grid[x - 1][y] = WHITE_KING;
 					Grid[x][y] = EMPTY_SQUARE;
 					if (Player_In_Check(Grid, player) == false)
+					{
+						Grid[x - 1][y] = pos;
+						Grid[x][y] = WHITE_KING;
 						return false;
+					}
+					Grid[x - 1][y] = pos;
+					Grid[x][y] = WHITE_KING;
 				}
 			}
 			if (x - 1 >= 0 && y - 1 >= 0)
@@ -1407,7 +1574,13 @@ bool Check_Win(char Grid[][8], char player)
 					Grid[x - 1][y - 1] = WHITE_KING;
 					Grid[x][y] = EMPTY_SQUARE;
 					if (Player_In_Check(Grid, player) == false)
+					{
+						Grid[x - 1][y - 1] = pos;
+						Grid[x][y] = WHITE_KING;
 						return false;
+					}
+					Grid[x - 1][y - 1] = pos;
+					Grid[x][y] = WHITE_KING;
 				}
 			}
 			if (x - 1 >= 0 && y + 1 < 8)
@@ -1418,10 +1591,404 @@ bool Check_Win(char Grid[][8], char player)
 					Grid[x - 1][y + 1] = WHITE_KING;
 					Grid[x][y] = EMPTY_SQUARE;
 					if (Player_In_Check(Grid, player) == false)
+					{
+						Grid[x - 1][y + 1] = pos;
+						Grid[x][y] = WHITE_KING;
 						return false;
+					}
+					Grid[x - 1][y + 1] = pos;
+					Grid[x][y] = WHITE_KING;
 				}
 			}
 			//Check the movement of the other pieces
+			for (int j = 0; j < 8; j++)
+			{
+				for (int q = 0; q < 8; q++)
+				{
+					if (Grid[j][q] != EMPTY_SQUARE)
+					{
+						if (Grid[j][q] == WHITE_PAWN)
+						{
+							//Forward Pawn Move (haven t checked if double starting move works)
+							if (j + 1 < 8 && Grid[j + 1][q] == EMPTY_SQUARE)
+							{
+								Grid[j + 1][q] = WHITE_PAWN;
+								Grid[j][q] = EMPTY_SQUARE;
+								if (Player_In_Check(Grid, player) == false)
+								{
+									Grid[j + 1][q] = EMPTY_SQUARE;
+									Grid[j][q] = WHITE_PAWN;
+									return false;
+								}
+								Grid[j + 1][q] = EMPTY_SQUARE;
+								Grid[j][q] = WHITE_PAWN;
+							}
+							//Capture left
+							if (j + 1 < 8 && q - 1 >= 0)
+							{
+								pos = Grid[j + 1][q - 1];
+								if (pos == BLACK_BISHOP || pos == BLACK_HORSE || pos == BLACK_QUEEN || pos == BLACK_PAWN)
+								{
+									Grid[j + 1][q - 1] = WHITE_PAWN;
+									Grid[j][q] = EMPTY_SQUARE;
+									if (Player_In_Check(Grid, player) == false)
+									{
+										Grid[j + 1][q - 1] = pos;
+										Grid[j][q] = WHITE_PAWN;
+										return false;
+									}
+									Grid[j + 1][q - 1] = pos;
+									Grid[j][q] = WHITE_PAWN;
+								}
+							}
+							//Capture right
+							if (j + 1 < 8 && q + 1 < 8)
+							{
+								pos = Grid[j + 1][q + 1];
+								if (pos == BLACK_BISHOP || pos == BLACK_HORSE || pos == BLACK_QUEEN || pos == BLACK_PAWN)
+								{
+									Grid[j + 1][q + 1] = WHITE_PAWN;
+									Grid[j][q] = EMPTY_SQUARE;
+									if (Player_In_Check(Grid, player) == false)
+									{
+										Grid[j + 1][q + 1] = pos;
+										Grid[j][q] = WHITE_PAWN;
+										return false;
+									}
+									Grid[j + 1][q + 1] = pos;
+									Grid[j][q] = WHITE_PAWN;
+								}
+							}
+						}
+						else if (Grid[j][q] == WHITE_HORSE)
+						{
+							if (j + 2 < 8 && q + 1 < 8)
+							{
+								pos = Grid[j + 2][q + 1];
+								Grid[j + 2][q + 1] = WHITE_HORSE;
+								Grid[j][q] = EMPTY_SQUARE;
+								if (Player_In_Check(Grid, player) == false)
+								{
+									Grid[j + 2][q + 1] = pos;
+									Grid[j][q] = WHITE_HORSE;
+									return false;
+								}
+								Grid[j + 2][q + 1] = pos;
+								Grid[j][q] = WHITE_HORSE;
+							}
+							if (j + 2 < 8 && q - 1 >= 0)
+							{
+								pos = Grid[j + 2][q - 1];
+								Grid[j + 2][q - 1] = WHITE_HORSE;
+								Grid[j][q] = EMPTY_SQUARE;
+								if (Player_In_Check(Grid, player) == false)
+								{
+									Grid[j + 2][q - 1] = pos;
+									Grid[j][q] = WHITE_PAWN;
+									return false;
+								}
+								Grid[j + 2][q - 1] = pos;
+								Grid[j][q] = WHITE_PAWN;
+							}
+							if (j - 2 >= 0 && q + 1 < 8)
+							{
+								pos = Grid[j - 2][q + 1];
+								Grid[j - 2][q + 1] = WHITE_HORSE;
+								Grid[j][q] = EMPTY_SQUARE;
+								if (Player_In_Check(Grid, player) == false)
+								{
+									Grid[j - 2][q + 1] = pos;
+									Grid[j][q] = WHITE_HORSE;
+									return false;
+								}
+								Grid[j - 2][q + 1] = pos;
+								Grid[j][q] = WHITE_HORSE;
+							}
+							if (j - 2 >= 0 && q - 1 >= 0)
+							{
+								pos = Grid[j - 2][q - 1];
+								Grid[j - 2][q - 1] = WHITE_HORSE;
+								Grid[j][q] = EMPTY_SQUARE;
+								if (Player_In_Check(Grid, player) == false)
+								{
+									Grid[j - 2][q - 1] = pos;
+									Grid[j][q] = WHITE_HORSE;
+									return false;
+								}
+								Grid[j - 2][q - 1] = pos;
+								Grid[j][q] = WHITE_HORSE;
+							}
+							if (j + 1 < 8 && q + 2 < 8)
+							{
+								pos = Grid[j + 1][q + 2];
+								Grid[j + 1][q + 2] = WHITE_HORSE;
+								Grid[j][q] = EMPTY_SQUARE;
+								if (Player_In_Check(Grid, player) == false)
+								{
+									Grid[j + 1][q + 2] = pos;
+									Grid[j][q] = WHITE_HORSE;
+									return false;
+								}
+								Grid[j + 1][q + 2] = pos;
+								Grid[j][q] = WHITE_HORSE;
+							}
+							if (j + 1 < 8 && q - 2 >= 0)
+							{
+								pos = Grid[j + 1][q - 2];
+								Grid[j + 1][q - 2] = WHITE_HORSE;
+								Grid[j][q] = EMPTY_SQUARE;
+								if (Player_In_Check(Grid, player) == false)
+								{
+									Grid[j + 1][q - 2] = pos;
+									Grid[j][q] = WHITE_HORSE;
+									return false;
+								}
+								Grid[j + 1][q - 2] = pos;
+								Grid[j][q] = WHITE_HORSE;
+							}
+							if (j - 1 >= 0 && q + 2 < 8)
+							{
+								pos = Grid[j - 1][q + 2];
+								Grid[j - 1][q + 2] = WHITE_HORSE;
+								Grid[j][q] = EMPTY_SQUARE;
+								if (Player_In_Check(Grid, player) == false)
+								{
+									Grid[j - 1][q + 2] = pos;
+									Grid[j][q] = WHITE_HORSE;
+									return false;
+								}
+								Grid[j - 1][q + 2] = pos;
+								Grid[j][q] = WHITE_HORSE;
+							}
+							if (j - 1 >= 0 && q - 2 >= 0)
+							{
+								pos = Grid[j - 1][q - 2];
+								Grid[j - 1][q - 2] = WHITE_HORSE;
+								Grid[j][q] = EMPTY_SQUARE;
+								if (Player_In_Check(Grid, player) == false)
+								{
+									Grid[j - 1][q - 2] = pos;
+									Grid[j][q] = WHITE_HORSE;
+									return false;
+								}
+								Grid[j - 1][q - 2] = pos;
+								Grid[j][q] = WHITE_HORSE;
+							}
+						}
+						else if (Grid[j][q] == WHITE_BISHOP || Grid[j][q] == WHITE_QUEEN)
+						{
+							//Look on all directions
+							//Search TOP Left x-- y--
+							s = q - 1;
+							t = j - 1;
+							if (t >= 0 && s >= 0)
+							{
+								while (t >= 0 && s >= 0)
+								{
+									pos = Grid[t][s];
+									prev = Grid[j][q];
+									if (pos != EMPTY_SQUARE && ((abs(t - x) != abs(s - y)) && x != t && y != s))
+										break;
+									else if ((pos == EMPTY_SQUARE || pos == BLACK_BISHOP || pos == BLACK_HORSE || pos == BLACK_QUEEN || pos == BLACK_PAWN) && ((abs(t - x) == abs(s - y)) || x == t || y == s))
+									{
+										Grid[t][s] = Grid[j][q];
+										Grid[j][q] = EMPTY_SQUARE;
+										if (Player_In_Check(Grid, player) == false)
+										{
+											Grid[t][s] = pos;
+											Grid[j][q] = prev;
+											return false;
+										}
+										Grid[t][s] = pos;
+										Grid[j][q] = prev;
+									}
+									else break;
+									s--;
+									t--;
+								}
+							}
+							//Search BOTTOM Right x++ y++
+							s = q + 1;
+							t = j + 1;
+							if (t < 8 && s < 8)
+							{
+								while (t < 8 && s < 8)
+								{
+									pos = Grid[t][s];
+									prev = Grid[j][q];
+									if (pos != EMPTY_SQUARE && ((abs(t - x) != abs(s - y)) || x == t || y == s))
+										break;
+									else if ((pos == EMPTY_SQUARE || pos == BLACK_BISHOP || pos == BLACK_HORSE || pos == BLACK_QUEEN || pos == BLACK_PAWN) && ((abs(t - x) == abs(s - y)) || x == t || y == s))
+									{
+										Grid[t][s] = Grid[j][q];
+										Grid[j][q] = EMPTY_SQUARE;
+										if (Player_In_Check(Grid, player) == false)
+										{
+											Grid[t][s] = pos;
+											Grid[j][q] = prev;
+											return false;
+										}
+										Grid[t][s] = pos;
+										Grid[j][q] = prev;
+									}
+									else break;
+									s++;
+									t++;
+								}
+							}
+							//Search BOTTOM Left x++ y--
+							s = q - 1;
+							t = j + 1;
+							if (s >= 0 && t < 8)
+							{
+								while (s >= 0 && t < 8)
+								{
+									pos = Grid[t][s];
+									prev = Grid[j][q];
+									if (pos != EMPTY_SQUARE && ((abs(t - x) != abs(s - y)) || x == t || y == s))
+										break;
+									else if ((pos == EMPTY_SQUARE || pos == BLACK_BISHOP || pos == BLACK_HORSE || pos == BLACK_QUEEN || pos == BLACK_PAWN) && ((abs(t - x) == abs(s - y)) || x == t || y == s))
+									{
+										Grid[t][s] = Grid[j][q];
+										Grid[j][q] = EMPTY_SQUARE;
+										if (Player_In_Check(Grid, player) == false)
+										{
+											Grid[t][s] = pos;
+											Grid[j][q] = prev;
+											return false;
+										}
+										Grid[t][s] = pos;
+										Grid[j][q] = prev;
+									}
+									else break;
+									s--;
+									t++;
+								}
+							}
+							//Search top Right x-- y++
+							s = q + 1;
+							t = j - 1;
+							if (s < 8 && t >= 0)
+							{
+								while (s < 8 && t >= 0)
+								{
+									pos = Grid[t][s];
+									prev = Grid[j][q];
+									if (pos != EMPTY_SQUARE && ((abs(t - x) != abs(s - y)) || x == t || y == s))
+										break;
+									else if ((pos == EMPTY_SQUARE || pos == BLACK_BISHOP || pos == BLACK_HORSE || pos == BLACK_QUEEN || pos == BLACK_PAWN) && ((abs(t - x) == abs(s - y)) || x == t || y == s))
+									{
+										Grid[t][s] = Grid[j][q];
+										Grid[j][q] = EMPTY_SQUARE;
+										if (Player_In_Check(Grid, player) == false)
+										{
+											Grid[t][s] = pos;
+											Grid[j][q] = prev;
+											return false;
+										}
+										Grid[t][s] = pos;
+										Grid[j][q] = prev;
+									}
+									else break;
+									s++;
+									t--;
+								}
+							}
+						}
+						if (Grid[j][q] == WHITE_ROOK || Grid[j][q] == WHITE_QUEEN)
+						{
+							//Look Right
+							for (int t = q + 1; t < 8; t++)
+							{
+								pos = Grid[j][t];
+								prev = Grid[j][q];
+								if (pos != EMPTY_SQUARE && ((abs(j - x) != abs(t - y)) || x == j || y == t))
+									break;
+								else if ((pos == EMPTY_SQUARE || pos == BLACK_BISHOP || pos == BLACK_HORSE || pos == BLACK_QUEEN || pos == BLACK_PAWN) && ((abs(t - x) == abs(s - y)) || x == t || y == s))
+								{
+									Grid[j][t] = Grid[j][q];
+									Grid[j][q] = EMPTY_SQUARE;
+									if (Player_In_Check(Grid, player) == false)
+									{
+										Grid[j][t] = pos;
+										Grid[j][q] = prev;
+										return false;
+									}
+									Grid[j][t] = pos;
+									Grid[j][q] = prev;
+								}
+								else break;
+							}
+							//Look Left
+							for (int t = q - 1; t >= 0; t--)
+							{
+								pos = Grid[j][t];
+								prev = Grid[j][q];
+								if (pos != EMPTY_SQUARE && ((abs(j - x) != abs(t - y)) || x == j || y == t))
+									break;
+								else if ((pos == EMPTY_SQUARE || pos == BLACK_BISHOP || pos == BLACK_HORSE || pos == BLACK_QUEEN || pos == BLACK_PAWN) && ((abs(t - x) == abs(s - y)) || x == t || y == s))
+								{
+									Grid[j][t] = Grid[j][q];
+									Grid[j][q] = EMPTY_SQUARE;
+									if (Player_In_Check(Grid, player) == false)
+									{
+										Grid[j][t] = pos;
+										Grid[j][q] = prev;
+										return false;
+									}
+									Grid[j][t] = pos;
+									Grid[j][q] = prev;
+								}
+								else break;
+							}
+							//Look Up
+							for (int t = j + 1; t < 8; t++)
+							{
+								pos = Grid[t][q];
+								prev = Grid[j][q];
+								if (pos != EMPTY_SQUARE && ((abs(j - x) != abs(t - y)) || x == t || y == q))
+									break;
+								else if ((pos == EMPTY_SQUARE || pos == BLACK_BISHOP || pos == BLACK_HORSE || pos == BLACK_QUEEN || pos == BLACK_PAWN) && ((abs(t - x) == abs(s - y)) || x == t || y == s))
+								{
+									Grid[t][q] = Grid[j][q];
+									Grid[j][q] = EMPTY_SQUARE;
+									if (Player_In_Check(Grid, player) == false)
+									{
+										Grid[t][q] = pos;
+										Grid[j][q] = prev;
+										return false;
+									}
+									Grid[t][q] = pos;
+									Grid[j][q] = prev;
+								}
+								else break;
+							}
+							//Look Down
+							for (int t = j - 1; t >= 0; t--)
+							{
+								pos = Grid[t][q];
+								prev = Grid[j][q];
+								if (pos != EMPTY_SQUARE && ((abs(j - x) != abs(t - y)) || x == t || y == q))
+									break;
+								else if ((pos == EMPTY_SQUARE || pos == BLACK_BISHOP || pos == BLACK_HORSE || pos == BLACK_QUEEN || pos == BLACK_PAWN) && ((abs(t - x) == abs(s - y)) || x == t || y == s))
+								{
+									Grid[t][q] = Grid[j][q];
+									Grid[j][q] = EMPTY_SQUARE;
+									if (Player_In_Check(Grid, player) == false)
+									{
+										Grid[t][q] = pos;
+										Grid[j][q] = prev;
+										return false;
+									}
+									Grid[t][q] = pos;
+									Grid[j][q] = prev;
+								}
+								else break;
+							}
+						}
+					}
+				}
+			}
 			return true;
 		}
 		if (player == BLACK_PLAYER) std::cout << "White player (UPERCASE/ALL CAPS) is in CHECK! " << std::endl;
@@ -1442,37 +2009,28 @@ start:
 		std::cout << "----White to move(UPERCASE)----" << std::endl;
 	else std::cout << "----Black to move(lowercase)----" << std::endl;
 	std::cout << "Choose the piece you want to move:  " << std::endl;
-	std::cout << "Row = ";
-	std::cin >> x;
 	std::cout << "Column = ";
 	std::cin >> y;
-	while (!std::cin.good() || x < 97 || x >= (8 + 97) || y < 97 || y >= (8 + 97) || !Check_Start(Grid, x - 97, y - 97, PlayerX))
+	std::cout << "Row = ";
+	std::cin >> x;
+	while (!std::cin.good() || x < 49 || x >(7+ 49) || y < 97 || y >= (8 + 97) || !Check_Start(Grid, 56-x, y - 97, PlayerX))
 	{
 		std::cin.clear();
 		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 		system("CLS");
-		Display_Grid(Grid);	
+		Display_Grid(Grid);
 		Player_In_Check(Grid, PlayerX % 2 + 1);
 		if (PlayerX == WHITE_PLAYER)
 			std::cout << "----White to move(UPERCASE)----" << std::endl;
 		else std::cout << "----Black to move(lowercase)----" << std::endl;
 		std::cout << "Choose the piece you want to move:  " << std::endl;
 		std::cout << "Insert a valid coordenate" << std::endl;
-		std::cout << "Row = ";
-		std::cin >> x;
 		std::cout << "Column = ";
 		std::cin >> y;
+		std::cout << "Row = ";
+		std::cin >> x;
 	}
 	std::cout << "Choose where to go or write q if you messed up:  " << std::endl;
-	std::cout << "Row = ";
-	std::cin >> j;
-	if (j == 'q')
-	{
-		system("CLS");
-		Display_Grid(Grid);
-		Player_In_Check(Grid, PlayerX % 2 + 1);
-		goto start;
-	}
 	std::cout << "Column = ";
 	std::cin >> z;
 	if (z == 'q')
@@ -1482,8 +2040,16 @@ start:
 		Player_In_Check(Grid, PlayerX % 2 + 1);
 		goto start;
 	}
-
-	while (!std::cin.good() || j < 97 || j >= (8 + 97) || z < 97 || z >= (8 + 97) || !Check_END(Grid, x - 97, y - 97, j - 97, z - 97, PlayerX))
+	std::cout << "Row = ";
+	std::cin >> j;
+	if (j == 'q')
+	{
+		system("CLS");
+		Display_Grid(Grid);
+		Player_In_Check(Grid, PlayerX % 2 + 1);
+		goto start;
+	}	
+	while (!std::cin.good() || j < 49 || j > (49+7) || z < 97 || z >= (8 + 97) || !Check_END(Grid, 56-x, y - 97, 56-j, z - 97, PlayerX))
 	{
 		std::cin.clear();
 		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
@@ -1495,18 +2061,18 @@ start:
 		else std::cout << "----Black to move(lowercase)----" << std::endl;
 		std::cout << "Insert a valid move" << std::endl;
 		std::cout << "Choose where to go or write q if you messed up:  " << std::endl;
-		std::cout << "Row = ";
-		std::cin >> j;
-		if (j == 'q')
+		std::cout << "Column = ";
+		std::cin >> z;
+		if (z == 'q')
 		{
 			system("CLS");
 			Display_Grid(Grid);
 			Player_In_Check(Grid, PlayerX % 2 + 1);
 			goto start;
 		}
-		std::cout << "Column = ";
-		std::cin >> z;
-		if (z == 'q')
+		std::cout << "Row = ";
+		std::cin >> j;
+		if (j == 'q')
 		{
 			system("CLS");
 			Display_Grid(Grid);
@@ -1527,8 +2093,16 @@ int main()
 	{
 		Player_Choice(Grid, player);
 		Display_Grid(Grid);
-		win=Check_Win(Grid,player);
+		win = Check_Win(Grid, player);
+		Display_Grid(Grid);
 		player = player % 2 + 1;
 	}
+	Display_Grid(Grid);
+	if (player==WHITE_PLAYER && win==true)
+		std::cout << "Black Player WON!!!! CHECKMATE!!!";
+	else
+		std::cout << "White Player WON!!!! CHECKMATE!!!";
+	//Tie remaining
+	system("pause");
 	return 0;
 }
