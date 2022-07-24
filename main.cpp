@@ -23,6 +23,9 @@ bool BLACK_CASTLE_LEFT = true;
 bool BLACK_CASTLE_RIGHT = true;
 bool BLACK_CASTLE_KING = true;
 
+char BLACK_EN_PASSANT;
+char WHITE_EN_PASSANT;
+
 const char EMPTY_SQUARE = -2;
 const char VERTICAL_LINE = -70;
 const char HORIZONTAL_LINE = -51;
@@ -44,7 +47,7 @@ start:
 	std::cout << std::endl;
 	std::cout << "  Select Option(1-4): ";
 	std::cin >> input;
-	while (!std::cin.good()||input<1||input>4)
+	while (!std::cin.good() || input < 1 || input>4)
 	{
 		std::cin.clear();
 		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
@@ -74,12 +77,17 @@ start:
 		std::cout << std::endl;
 		std::cout << "Pieces List/ Movement:" << std::endl;
 		std::cout << std::endl;
-		std::cout << "PAWN (P/p) --> Moves one square at a time, it can only move forward, it can only capture enemy pieces diagonally (one square to the left/Right and one up),if it has not moved yet they can start by moving two squares forward, it can do an en passant capture this happens when the opponent pawn does a double move start then if you have a pawn that could have killed the enemy pawn if it had moved only one square then you can still caputre it, if it reaches the final square on the board you can promote it to whatever piece you want." << std::endl;
-		std::cout << "Rook (R/r) --> Moves vertically and horizontally the amount of squares you want without passing through any pieces." << std::endl;
-		std::cout << "Horse (H/h) --> Moves in an L shape, two squares horizontally and one vertically or two squares vertically and one square horizontally." << std::endl;
-		std::cout << "Bishop (B/b) --> Moves Diagonally the amount of squares you want without passing through any pieces." << std::endl;
-		std::cout << "Queen (Q/q) --> Moves like a rook and a bishop, it can move diagonally/vertically/horizontally the amount of squares you want without passing through any pieces" << std::endl;
-		std::cout << "King (K/k) --> Can only move one square in any direction, you can castle the king queen side or king side, this means that if there are no pieces between your king and either of your rooks you can move yout king two squares in the direction you are castling and put the rook on that side next to the king(if you castled king side then your king will go from e1 to g1 and the rook will gor from h1 to f1), this can only be done if neither the king and rook that you are using to castle have moved that game and if your king isn't in check." << std::endl;
+		std::cout << " - PAWN (P/p) --> Moves one square at a time, it can only move forward, it can only capture enemy pieces diagonally (one square to the left/Right and one up),if it has not moved yet they can start by moving two squares forward, it can do an en passant capture this happens when the opponent pawn does a double move start then if you have a pawn that could have killed the enemy pawn if it had moved only one square then you can still caputre it, if it reaches the final square on the board you can promote it to whatever piece you want." << std::endl;
+		std::cout << std::endl;
+		std::cout << " - Rook (R/r) --> Moves vertically and horizontally the amount of squares you want without passing through any pieces." << std::endl;
+		std::cout << std::endl;
+		std::cout << " - Horse (H/h) --> Moves in an L shape, two squares horizontally and one vertically or two squares vertically and one square horizontally." << std::endl;
+		std::cout << std::endl;
+		std::cout << " - Bishop (B/b) --> Moves Diagonally the amount of squares you want without passing through any pieces." << std::endl;
+		std::cout << std::endl;
+		std::cout << " - Queen (Q/q) --> Moves like a rook and a bishop, it can move diagonally/vertically/horizontally the amount of squares you want without passing through any pieces" << std::endl;
+		std::cout << std::endl;
+		std::cout << " - King (K/k) --> Can only move one square in any direction, you can castle the king queen side or king side, this means that if there are no pieces between your king and either of your rooks you can move yout king two squares in the direction you are castling and put the rook on that side next to the king(if you castled king side then your king will go from e1 to g1 and the rook will gor from h1 to f1), this can only be done if neither the king and rook that you are using to castle have moved that game and if your king isn't in check." << std::endl;
 		std::cout << std::endl;
 		std::cout << "Basic Knowledge:" << std::endl;
 		std::cout << std::endl;
@@ -89,7 +97,7 @@ start:
 		system("pause");
 		goto start;
 	case 4:
-	return 4;
+		return 4;
 	}
 	return 0;
 }
@@ -453,6 +461,7 @@ bool Check_ADVANCED(char Grid[][8], char x, char y, char j, char z, char player)
 	bool Castle_Right = false;
 	bool King_Move = false;
 	bool check = false;
+	char en_passant='z';
 	char aux, aux_piece;
 	int m, s, t;
 	//Basic movement and Captures
@@ -469,11 +478,22 @@ bool Check_ADVANCED(char Grid[][8], char x, char y, char j, char z, char player)
 		if (abs(x - j) == 2 && abs(y - z) == 0)
 		{
 			if (player == WHITE_PLAYER && x == 6)
+			{
+				en_passant = y;
 				goto CHECK_CHECK;
+			}
 			else if (player == BLACK_PLAYER && x == 1)
+			{
+				en_passant = y;
 				goto CHECK_CHECK;
+			}
 		}
 		//Check en passant
+		if (dest==EMPTY_SQUARE && abs(y - z)!=0 && ((player == WHITE_PLAYER && Grid[j+1][z]==BLACK_PAWN && BLACK_EN_PASSANT==z) || (player == BLACK_PLAYER && Grid[j-1][z] == WHITE_PAWN && WHITE_EN_PASSANT == z)))
+		{
+			en_passant = 'k';
+			goto CHECK_CHECK;
+		}
 		//Check that the move is not further than one square and if it goes diagonally there is not an empty square and can t kill enemies just walking forward
 		if (abs(y - z) > 1 || abs(x - j) > 1 || ((y != z) && (dest == EMPTY_SQUARE)) || ((y == z) && (dest != EMPTY_SQUARE)))
 			return false;
@@ -662,25 +682,43 @@ CHECK_CHECK:
 	Grid[j][z] = piece;
 	if (player == WHITE_PLAYER)
 	{
-		check=Player_In_Check(Grid, player % 2 + 1);
-		if (check == true) goto restore;
+		//An en passant capture is being tested
+		if (en_passant == 'k') Grid[j + 1][z] = EMPTY_SQUARE;
+
+		check = Player_In_Check(Grid, player % 2 + 1);
+		if (check == true) 
+		{ 
+			if (en_passant == 'k') Grid[j + 1][z] = BLACK_PAWN;
+			goto restore;
+		}
 
 		//update castle variables
-
 		if (WHITE_CASTLE_KING == true) WHITE_CASTLE_KING = !King_Move;
 		if (WHITE_CASTLE_LEFT == true) WHITE_CASTLE_LEFT = !Castle_Left;
 		if (WHITE_CASTLE_RIGHT == true) WHITE_CASTLE_RIGHT = !Castle_Right;
+		//update en passant column
+		if (en_passant != 'z' && en_passant != 'k') WHITE_EN_PASSANT = en_passant;
+		BLACK_EN_PASSANT = 'z';
 	}
 	if (player == BLACK_PLAYER)
 	{
+		//An en passant capture is being tested
+		if (en_passant == 'k') Grid[j - 1][z] = EMPTY_SQUARE;
+
 		check = Player_In_Check(Grid, player % 2 + 1);
-		if (check == true) goto restore;
+		if (check == true) 
+		{ 
+			if (en_passant == 'k') Grid[j - 1][z] = WHITE_PAWN;
+			goto restore; 
+		}
 
 		//update castle variables
 		if (BLACK_CASTLE_KING == true) BLACK_CASTLE_KING = !King_Move;
 		if (BLACK_CASTLE_LEFT == true) BLACK_CASTLE_LEFT = !Castle_Left;
 		if (BLACK_CASTLE_RIGHT == true) BLACK_CASTLE_RIGHT = !Castle_Right;
-
+		//update en passant column
+		if (en_passant != 'z' && en_passant!='k') BLACK_EN_PASSANT = en_passant;
+		WHITE_EN_PASSANT = 'z';
 	}
 	//returns false if the move is not possible
 	return true;
@@ -1172,7 +1210,7 @@ bool Check_Win(char Grid[][8], char player)
 								prev = Grid[j][q];
 								if (pos != EMPTY_SQUARE && ((abs(j - x) != abs(t - y)) || x == j || y == t))
 									break;
-								else if ((pos == EMPTY_SQUARE || pos == WHITE_BISHOP || pos == WHITE_HORSE || pos == WHITE_QUEEN || pos == WHITE_PAWN) && ((abs(t - x) == abs(s - y)) || x == t || y == s))
+								else if ((pos == EMPTY_SQUARE || pos == WHITE_BISHOP || pos == WHITE_HORSE || pos == WHITE_QUEEN || pos == WHITE_PAWN) && ((abs(j - x) != abs(t - y)) || x == j || y == t))
 								{
 									Grid[j][t] = Grid[j][q];
 									Grid[j][q] = EMPTY_SQUARE;
@@ -1194,7 +1232,7 @@ bool Check_Win(char Grid[][8], char player)
 								prev = Grid[j][q];
 								if (pos != EMPTY_SQUARE && ((abs(j - x) != abs(t - y)) || x == j || y == t))
 									break;
-								else if ((pos == EMPTY_SQUARE || pos == WHITE_BISHOP || pos == WHITE_HORSE || pos == WHITE_QUEEN || pos == WHITE_PAWN) && ((abs(t - x) == abs(s - y)) || x == t || y == s))
+								else if ((pos == EMPTY_SQUARE || pos == WHITE_BISHOP || pos == WHITE_HORSE || pos == WHITE_QUEEN || pos == WHITE_PAWN) && ((abs(j - x) != abs(t - y)) || x == j || y == t))
 								{
 									Grid[j][t] = Grid[j][q];
 									Grid[j][q] = EMPTY_SQUARE;
@@ -1216,7 +1254,7 @@ bool Check_Win(char Grid[][8], char player)
 								prev = Grid[j][q];
 								if (pos != EMPTY_SQUARE && ((abs(j - x) != abs(t - y)) || x == t || y == q))
 									break;
-								else if ((pos == EMPTY_SQUARE || pos == WHITE_BISHOP || pos == WHITE_HORSE || pos == WHITE_QUEEN || pos == WHITE_PAWN) && ((abs(t - x) == abs(s - y)) || x == t || y == s))
+								else if ((pos == EMPTY_SQUARE || pos == WHITE_BISHOP || pos == WHITE_HORSE || pos == WHITE_QUEEN || pos == WHITE_PAWN) && ((abs(j - x) != abs(t - y)) || x == t || y == q))
 								{
 									Grid[t][q] = Grid[j][q];
 									Grid[j][q] = EMPTY_SQUARE;
@@ -1238,7 +1276,7 @@ bool Check_Win(char Grid[][8], char player)
 								prev = Grid[j][q];
 								if (pos != EMPTY_SQUARE && ((abs(j - x) != abs(t - y)) || x == t || y == q))
 									break;
-								else if ((pos == EMPTY_SQUARE || pos == WHITE_BISHOP || pos == WHITE_HORSE || pos == WHITE_QUEEN || pos == WHITE_PAWN) && ((abs(t - x) == abs(s - y)) || x == t || y == s))
+								else if ((pos == EMPTY_SQUARE || pos == WHITE_BISHOP || pos == WHITE_HORSE || pos == WHITE_QUEEN || pos == WHITE_PAWN) && ((abs(j - x) != abs(t - y)) || x == t || y == q))
 								{
 									Grid[t][q] = Grid[j][q];
 									Grid[j][q] = EMPTY_SQUARE;
@@ -1706,7 +1744,7 @@ bool Check_Win(char Grid[][8], char player)
 								prev = Grid[j][q];
 								if (pos != EMPTY_SQUARE && ((abs(j - x) != abs(t - y)) || x == j || y == t))
 									break;
-								else if ((pos == EMPTY_SQUARE || pos == BLACK_BISHOP || pos == BLACK_HORSE || pos == BLACK_QUEEN || pos == BLACK_PAWN) && ((abs(t - x) == abs(s - y)) || x == t || y == s))
+								else if ((pos == EMPTY_SQUARE || pos == BLACK_BISHOP || pos == BLACK_HORSE || pos == BLACK_QUEEN || pos == BLACK_PAWN) && ((abs(j - x) != abs(t - y)) || x == j || y == t))
 								{
 									Grid[j][t] = Grid[j][q];
 									Grid[j][q] = EMPTY_SQUARE;
@@ -1728,7 +1766,7 @@ bool Check_Win(char Grid[][8], char player)
 								prev = Grid[j][q];
 								if (pos != EMPTY_SQUARE && ((abs(j - x) != abs(t - y)) || x == j || y == t))
 									break;
-								else if ((pos == EMPTY_SQUARE || pos == BLACK_BISHOP || pos == BLACK_HORSE || pos == BLACK_QUEEN || pos == BLACK_PAWN) && ((abs(t - x) == abs(s - y)) || x == t || y == s))
+								else if ((pos == EMPTY_SQUARE || pos == BLACK_BISHOP || pos == BLACK_HORSE || pos == BLACK_QUEEN || pos == BLACK_PAWN) && ((abs(j - x) != abs(t - y)) || x == j || y == t))
 								{
 									Grid[j][t] = Grid[j][q];
 									Grid[j][q] = EMPTY_SQUARE;
@@ -1750,7 +1788,7 @@ bool Check_Win(char Grid[][8], char player)
 								prev = Grid[j][q];
 								if (pos != EMPTY_SQUARE && ((abs(j - x) != abs(t - y)) || x == t || y == q))
 									break;
-								else if ((pos == EMPTY_SQUARE || pos == BLACK_BISHOP || pos == BLACK_HORSE || pos == BLACK_QUEEN || pos == BLACK_PAWN) && ((abs(t - x) == abs(s - y)) || x == t || y == s))
+								else if ((pos == EMPTY_SQUARE || pos == BLACK_BISHOP || pos == BLACK_HORSE || pos == BLACK_QUEEN || pos == BLACK_PAWN) && ((abs(j - x) != abs(t - y)) || x == t || y == q))
 								{
 									Grid[t][q] = Grid[j][q];
 									Grid[j][q] = EMPTY_SQUARE;
@@ -1772,7 +1810,7 @@ bool Check_Win(char Grid[][8], char player)
 								prev = Grid[j][q];
 								if (pos != EMPTY_SQUARE && ((abs(j - x) != abs(t - y)) || x == t || y == q))
 									break;
-								else if ((pos == EMPTY_SQUARE || pos == BLACK_BISHOP || pos == BLACK_HORSE || pos == BLACK_QUEEN || pos == BLACK_PAWN) && ((abs(t - x) == abs(s - y)) || x == t || y == s))
+								else if ((pos == EMPTY_SQUARE || pos == BLACK_BISHOP || pos == BLACK_HORSE || pos == BLACK_QUEEN || pos == BLACK_PAWN) && ((abs(j - x) != abs(t - y)) || x == t || y == q))
 								{
 									Grid[t][q] = Grid[j][q];
 									Grid[j][q] = EMPTY_SQUARE;
@@ -1888,8 +1926,8 @@ int main()
 	char player = WHITE_PLAYER;
 	bool win = false;
 	int end;
-	start:
-	end=StartUP_menu();
+start:
+	end = StartUP_menu();
 	if (end == 4) goto end;
 	Create_Grid(Grid);
 	Display_Grid(Grid);
@@ -1908,6 +1946,6 @@ int main()
 	//Tie remaining
 	system("pause");
 	goto start;
-	end:
+end:
 	return 0;
 }
