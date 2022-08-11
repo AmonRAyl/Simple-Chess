@@ -104,7 +104,7 @@ start:
 void Create_Grid(char Grid[][8])
 {
 	//Create Empty Board
-	for (int i = 2; i < 6; i++)
+	for (int i = 0; i < 8; i++)
 	{
 		for (int j = 0; j < 8; j++)
 		{
@@ -112,28 +112,32 @@ void Create_Grid(char Grid[][8])
 		}
 	}
 	//Setup Pieces
-	for (int i = 0; i < 8; i++)
+	/*for (int i = 0; i < 8; i++)
 	{
 		Grid[1][i] = BLACK_PAWN;
 		Grid[6][i] = WHITE_PAWN;
-	}
-	Grid[0][0] = BLACK_ROOK;
-	Grid[0][1] = BLACK_HORSE;
-	Grid[0][2] = BLACK_BISHOP;
-	Grid[0][3] = BLACK_QUEEN;
+	}*/
+	Grid[1][2] = BLACK_PAWN;
+	Grid[1][1] = BLACK_PAWN;
+	Grid[6][1] = WHITE_PAWN;
+	Grid[6][2] = WHITE_PAWN;
+	//Grid[0][0] = BLACK_ROOK;
+	//Grid[0][1] = BLACK_HORSE;
+	//Grid[0][2] = BLACK_BISHOP;
+	//Grid[0][3] = BLACK_QUEEN;
 	Grid[0][4] = BLACK_KING;
-	Grid[0][5] = BLACK_BISHOP;
-	Grid[0][6] = BLACK_HORSE;
-	Grid[0][7] = BLACK_ROOK;
+	//Grid[0][5] = BLACK_BISHOP;
+	//Grid[0][6] = BLACK_HORSE;
+	//Grid[2][0] = BLACK_ROOK;
 
-	Grid[7][0] = WHITE_ROOK;
-	Grid[7][1] = WHITE_HORSE;
-	Grid[7][2] = WHITE_BISHOP;
-	Grid[7][3] = WHITE_QUEEN;
+	//Grid[7][0] = WHITE_ROOK;
+	//Grid[7][1] = WHITE_HORSE;
+	//Grid[7][2] = WHITE_BISHOP;
+	//Grid[7][3] = WHITE_QUEEN;
 	Grid[7][4] = WHITE_KING;
-	Grid[7][5] = WHITE_BISHOP;
-	Grid[7][6] = WHITE_HORSE;
-	Grid[7][7] = WHITE_ROOK;
+	//Grid[7][5] = WHITE_BISHOP;
+	Grid[7][0] = WHITE_HORSE;
+	//Grid[7][7] = WHITE_ROOK;
 }
 void Display_Grid(char Grid[][8])
 {
@@ -461,7 +465,7 @@ bool Check_ADVANCED(char Grid[][8], char x, char y, char j, char z, char player)
 	bool Castle_Right = false;
 	bool King_Move = false;
 	bool check = false;
-	char en_passant='z';
+	char en_passant = 'z';
 	char aux, aux_piece;
 	int m, s, t;
 	//Basic movement and Captures
@@ -489,7 +493,7 @@ bool Check_ADVANCED(char Grid[][8], char x, char y, char j, char z, char player)
 			}
 		}
 		//Check en passant
-		if (dest==EMPTY_SQUARE && abs(y - z)!=0 && ((player == WHITE_PLAYER && Grid[j+1][z]==BLACK_PAWN && BLACK_EN_PASSANT==z) || (player == BLACK_PLAYER && Grid[j-1][z] == WHITE_PAWN && WHITE_EN_PASSANT == z)))
+		if (dest == EMPTY_SQUARE && abs(y - z) != 0 && ((player == WHITE_PLAYER && Grid[j + 1][z] == BLACK_PAWN && BLACK_EN_PASSANT == z) || (player == BLACK_PLAYER && Grid[j - 1][z] == WHITE_PAWN && WHITE_EN_PASSANT == z)))
 		{
 			en_passant = 'k';
 			goto CHECK_CHECK;
@@ -686,8 +690,8 @@ CHECK_CHECK:
 		if (en_passant == 'k') Grid[j + 1][z] = EMPTY_SQUARE;
 
 		check = Player_In_Check(Grid, player % 2 + 1);
-		if (check == true) 
-		{ 
+		if (check == true)
+		{
 			if (en_passant == 'k') Grid[j + 1][z] = BLACK_PAWN;
 			goto restore;
 		}
@@ -706,10 +710,10 @@ CHECK_CHECK:
 		if (en_passant == 'k') Grid[j - 1][z] = EMPTY_SQUARE;
 
 		check = Player_In_Check(Grid, player % 2 + 1);
-		if (check == true) 
-		{ 
+		if (check == true)
+		{
 			if (en_passant == 'k') Grid[j - 1][z] = WHITE_PAWN;
-			goto restore; 
+			goto restore;
 		}
 
 		//update castle variables
@@ -717,7 +721,7 @@ CHECK_CHECK:
 		if (BLACK_CASTLE_LEFT == true) BLACK_CASTLE_LEFT = !Castle_Left;
 		if (BLACK_CASTLE_RIGHT == true) BLACK_CASTLE_RIGHT = !Castle_Right;
 		//update en passant column
-		if (en_passant != 'z' && en_passant!='k') BLACK_EN_PASSANT = en_passant;
+		if (en_passant != 'z' && en_passant != 'k') BLACK_EN_PASSANT = en_passant;
 		WHITE_EN_PASSANT = 'z';
 	}
 	//returns false if the move is not possible
@@ -749,6 +753,492 @@ bool Check_END(char Grid[][8], char x, char y, char j, char z, char player)
 			return false;
 	}
 	return Check_ADVANCED(Grid, x, y, j, z, player);
+}
+bool Check_Tie(char Grid[][8], char player)
+{
+	char piece, aux,obj1, obj2;
+	//Check all the pieces of the player until one can move
+	if (Player_In_Check(Grid, player) == false) {
+		if (player == BLACK_PLAYER)
+		{
+			for (int x = 0; x < 8; x++)
+			{
+				for (int y = 0; y < 8; y++)
+				{
+					piece = Grid[x][y];
+					if (piece == WHITE_PAWN)
+					{
+						//check normal movement then  finally check if en passant is posible
+						if (Grid[x - 1][y] == EMPTY_SQUARE)
+						{
+							Grid[x][y] = EMPTY_SQUARE;
+							Grid[x - 1][y] = piece;
+							if (Player_In_Check(Grid, player) == false)
+							{
+								Grid[x - 1][y] = EMPTY_SQUARE;
+								Grid[x][y] = piece;
+								return false;
+							}
+							Grid[x - 1][y] = EMPTY_SQUARE;
+							Grid[x][y] = piece;
+						}
+						//check capture right + en passant right
+						if (y + 1 < 8)
+						{
+							obj1 = Grid[x - 1][y + 1];
+							if (obj1 == BLACK_PAWN || obj1 == BLACK_ROOK || obj1 == BLACK_HORSE || obj1 == BLACK_BISHOP || obj1 == BLACK_QUEEN)
+							{
+								Grid[x - 1][y + 1] = piece;
+								Grid[x][y] = EMPTY_SQUARE;
+								if (Player_In_Check(Grid, player) == false)
+								{
+									Grid[x][y] = piece;
+									Grid[x - 1][y + 1] = obj1;
+									return false;
+								}
+								Grid[x][y] = piece;
+								Grid[x - 1][y + 1] = obj1;
+							}
+							//check en passant
+							if (obj1 == EMPTY_SQUARE && x == 3 && (Grid[x][y + 1] == BLACK_PAWN && BLACK_EN_PASSANT == y + 1))
+							{
+								aux = Grid[x][y + 1];
+								Grid[x - 1][y + 1] = piece;
+								Grid[x][y] = EMPTY_SQUARE;
+								Grid[x][y + 1] = EMPTY_SQUARE;
+								if (Player_In_Check(Grid, player) == false)
+								{
+									Grid[x - 1][y + 1] = EMPTY_SQUARE;
+									Grid[x][y] = piece;
+									Grid[x][y + 1] = aux;
+									return false;
+								}
+								Grid[x - 1][y + 1] = EMPTY_SQUARE;
+								Grid[x][y] = piece;
+								Grid[x][y + 1] = aux;
+							}
+						}
+						//check capture left + en passant left
+						if (y - 1 >= 0)
+						{
+							obj2 = Grid[x - 1][y - 1];
+							if (obj2 == BLACK_PAWN || obj2 == BLACK_ROOK || obj2 == BLACK_HORSE || obj2 == BLACK_BISHOP || obj2 == BLACK_QUEEN)
+							{
+								Grid[x - 1][y - 1] = piece;
+								Grid[x][y] = EMPTY_SQUARE;
+								if (Player_In_Check(Grid, player) == false)
+								{
+									Grid[x][y] = piece;
+									Grid[x + 1][y - 1] = obj2;
+									return false;
+								}
+								Grid[x][y] = piece;
+								Grid[x - 1][y - 1] = obj2;
+							}
+							//check en passant
+							if (obj2 == EMPTY_SQUARE && x == 3 && (Grid[x][y - 1] == BLACK_PAWN && BLACK_EN_PASSANT == y - 1))
+							{
+								aux = Grid[x][y - 1];
+								Grid[x - 1][y - 1] = piece;
+								Grid[x][y] = EMPTY_SQUARE;
+								Grid[x][y - 1] = EMPTY_SQUARE;
+								if (Player_In_Check(Grid, player) == false)
+								{
+									Grid[x - 1][y - 1] = EMPTY_SQUARE;
+									Grid[x][y] = piece;
+									Grid[x][y - 1] = aux;
+									return false;
+								}
+								Grid[x - 1][y - 1] = EMPTY_SQUARE;
+								Grid[x][y] = piece;
+								Grid[x][y - 1] = aux;
+							}
+						}
+					}
+					if (piece == WHITE_HORSE)
+					{
+						if (x + 2 < 8 && y + 1 < 8)
+						{
+							obj1 = Grid[x + 2][y + 1];
+							if (obj1 == EMPTY_SQUARE || obj1 == BLACK_PAWN || obj1 == BLACK_ROOK || obj1 == BLACK_HORSE || obj1 == BLACK_BISHOP || obj1 == BLACK_QUEEN)
+							{
+								Grid[x + 2][y + 1] = piece;
+								Grid[x][y] = EMPTY_SQUARE;
+								if (Player_In_Check(Grid, player) == false)
+								{
+									Grid[x + 2][y + 1] = EMPTY_SQUARE;
+									Grid[x][y] = piece;
+									return false;
+								}
+								Grid[x + 2][y + 1] = EMPTY_SQUARE;
+								Grid[x][y] = piece;
+							}
+						}
+						if (x + 2 < 8 && y - 1 >= 0)
+						{
+							obj1 = Grid[x + 2][y - 1];
+							if (obj1 == EMPTY_SQUARE || obj1 == BLACK_PAWN || obj1 == BLACK_ROOK || obj1 == BLACK_HORSE || obj1 == BLACK_BISHOP || obj1 == BLACK_QUEEN)
+							{
+								Grid[x + 2][y - 1] = piece;
+								Grid[x][y] = EMPTY_SQUARE;
+								if (Player_In_Check(Grid, player) == false)
+								{
+									Grid[x + 2][y - 1] = EMPTY_SQUARE;
+									Grid[x][y] = piece;
+									return false;
+								}
+								Grid[x + 2][y - 1] = EMPTY_SQUARE;
+								Grid[x][y] = piece;
+							}
+						}
+						if (x - 2 >= 0 && y + 1 < 8)
+						{
+							obj1 = Grid[x - 2][y + 1];
+							if (obj1 == EMPTY_SQUARE || obj1 == BLACK_PAWN || obj1 == BLACK_ROOK || obj1 == BLACK_HORSE || obj1 == BLACK_BISHOP || obj1 == BLACK_QUEEN)
+							{
+								Grid[x - 2][y + 1] = piece;
+								Grid[x][y] = EMPTY_SQUARE;
+								if (Player_In_Check(Grid, player) == false)
+								{
+									Grid[x - 2][y + 1] = EMPTY_SQUARE;
+									Grid[x][y] = piece;
+									return false;
+								}
+								Grid[x - 2][y + 1] = EMPTY_SQUARE;
+								Grid[x][y] = piece;
+							}
+						}
+						if (x - 2 >= 0 && y - 1 >= 0)
+						{
+							obj1 = Grid[x - 2][y - 1];
+							if (obj1 == EMPTY_SQUARE || obj1 == BLACK_PAWN || obj1 == BLACK_ROOK || obj1 == BLACK_HORSE || obj1 == BLACK_BISHOP || obj1 == BLACK_QUEEN)
+							{
+								Grid[x - 2][y - 1] = piece;
+								Grid[x][y] = EMPTY_SQUARE;
+								if (Player_In_Check(Grid, player) == false)
+								{
+									Grid[x - 2][y - 1] = EMPTY_SQUARE;
+									Grid[x][y] = piece;
+									return false;
+								}
+								Grid[x - 2][y - 1] = EMPTY_SQUARE;
+								Grid[x][y] = piece;
+							}
+						}
+						if (x + 1 < 8 && y + 2 < 8)
+						{
+							obj1 = Grid[x + 1][y + 2];
+							if (obj1 == EMPTY_SQUARE || obj1 == BLACK_PAWN || obj1 == BLACK_ROOK || obj1 == BLACK_HORSE || obj1 == BLACK_BISHOP || obj1 == BLACK_QUEEN)
+							{
+								Grid[x + 1][y + 2] = piece;
+								Grid[x][y] = EMPTY_SQUARE;
+								if (Player_In_Check(Grid, player) == false)
+								{
+									Grid[x + 1][y + 2] = EMPTY_SQUARE;
+									Grid[x][y] = piece;
+									return false;
+								}
+								Grid[x + 1][y + 2] = EMPTY_SQUARE;
+								Grid[x][y] = piece;
+							}
+						}
+						if (x + 1 < 8 && y - 2 >= 0)
+						{
+							obj1 = Grid[x + 1][y - 2];
+							if (obj1 == EMPTY_SQUARE || obj1 == BLACK_PAWN || obj1 == BLACK_ROOK || obj1 == BLACK_HORSE || obj1 == BLACK_BISHOP || obj1 == BLACK_QUEEN)
+							{
+								Grid[x + 1][y - 2] = piece;
+								Grid[x][y] = EMPTY_SQUARE;
+								if (Player_In_Check(Grid, player) == false)
+								{
+									Grid[x + 1][y - 2] = EMPTY_SQUARE;
+									Grid[x][y] = piece;
+									return false;
+								}
+								Grid[x + 1][y - 2] = EMPTY_SQUARE;
+								Grid[x][y] = piece;
+							}
+						}
+						if (x - 1 >= 0 && y + 2 < 8)
+						{
+							obj1 = Grid[x - 1][y + 2];
+							if (obj1 == EMPTY_SQUARE || obj1 == BLACK_PAWN || obj1 == BLACK_ROOK || obj1 == BLACK_HORSE || obj1 == BLACK_BISHOP || obj1 == BLACK_QUEEN)
+							{
+								Grid[x - 1][y + 2] = piece;
+								Grid[x][y] = EMPTY_SQUARE;
+								if (Player_In_Check(Grid, player) == false)
+								{
+									Grid[x - 1][y + 2] = EMPTY_SQUARE;
+									Grid[x][y] = piece;
+									return false;
+								}
+								Grid[x - 1][y + 2] = EMPTY_SQUARE;
+								Grid[x][y] = piece;
+							}
+						}
+						if (x - 1 >= 0 && y - 2 >= 0)
+						{
+							obj1 = Grid[x - 1][y - 2];
+							if (obj1 == EMPTY_SQUARE || obj1 == BLACK_PAWN || obj1 == BLACK_ROOK || obj1 == BLACK_HORSE || obj1 == BLACK_BISHOP || obj1 == BLACK_QUEEN)
+							{
+								Grid[x - 1][y - 2] = piece;
+								Grid[x][y] = EMPTY_SQUARE;
+								if (Player_In_Check(Grid, player) == false)
+								{
+									Grid[x - 1][y - 2] = EMPTY_SQUARE;
+									Grid[x][y] = piece;
+									return false;
+								}
+								Grid[x - 1][y - 2] = EMPTY_SQUARE;
+								Grid[x][y] = piece;
+							}
+						}
+					}
+				}
+			}
+		}
+		else
+		{
+			for (int x = 0; x < 8; x++)
+			{
+				for (int y = 0; y < 8; y++)
+				{
+					piece = Grid[x][y];
+					if (piece == BLACK_PAWN)
+					{
+						//check normal movement then  finally check if en passant is posible
+						if (Grid[x + 1][y] == EMPTY_SQUARE)
+						{
+							Grid[x][y] = EMPTY_SQUARE;
+							Grid[x + 1][y] = piece;
+							if (Player_In_Check(Grid, player) == false)
+							{
+								Grid[x + 1][y] = EMPTY_SQUARE;
+								Grid[x][y] = piece;
+								return false;
+							}
+							Grid[x + 1][y] = EMPTY_SQUARE;
+							Grid[x][y] = piece;
+						}
+						//check capture right + en passant right
+						if (y + 1 < 8)
+						{
+							obj1 = Grid[x + 1][y + 1];
+							if (obj1 == WHITE_PAWN || obj1 == WHITE_ROOK || obj1 == WHITE_HORSE || obj1 == WHITE_BISHOP || obj1 == WHITE_QUEEN)
+							{
+								Grid[x + 1][y + 1] = piece;
+								Grid[x][y] = EMPTY_SQUARE;
+								if (Player_In_Check(Grid, player) == false)
+								{
+									Grid[x][y] = piece;
+									Grid[x + 1][y + 1] = obj1;
+									return false;
+								}
+								Grid[x][y] = piece;
+								Grid[x + 1][y + 1] = obj1;
+							}
+							//check en passant
+							if (obj1 == EMPTY_SQUARE && x == 4 && (Grid[x][y + 1] == WHITE_PAWN && WHITE_EN_PASSANT == y + 1))
+							{
+								aux = Grid[x][y + 1];
+								Grid[x + 1][y + 1] = piece;
+								Grid[x][y] = EMPTY_SQUARE;
+								Grid[x][y + 1] = EMPTY_SQUARE;
+								if (Player_In_Check(Grid, player) == false)
+								{
+									Grid[x + 1][y + 1] = EMPTY_SQUARE;
+									Grid[x][y] = piece;
+									Grid[x][y + 1] = aux;
+									return false;
+								}
+								Grid[x + 1][y + 1] = EMPTY_SQUARE;
+								Grid[x][y] = piece;
+								Grid[x][y + 1] = aux;
+							}
+						}
+						//check capture left + en passant left
+						if (y - 1 > 0)
+						{
+							obj2 = Grid[x + 1][y - 1];
+							if (obj2 == WHITE_PAWN || obj1 == WHITE_ROOK || obj1 == WHITE_HORSE || obj1 == WHITE_BISHOP || obj1 == WHITE_QUEEN)
+							{
+								Grid[x + 1][y - 1] = piece;
+								Grid[x][y] = EMPTY_SQUARE;
+								if (Player_In_Check(Grid, player) == false)
+								{
+									Grid[x][y] = piece;
+									Grid[x + 1][y - 1] = obj2;
+									return false;
+								}
+								Grid[x][y] = piece;
+								Grid[x + 1][y - 1] = obj2;
+							}
+							//check en passant
+							if (obj2 == EMPTY_SQUARE && x == 4 && (Grid[x][y - 1] == WHITE_PAWN && WHITE_EN_PASSANT == y - 1))
+							{
+								aux = Grid[x][y - 1];
+								Grid[x + 1][y - 1] = piece;
+								Grid[x][y] = EMPTY_SQUARE;
+								Grid[x][y - 1] = EMPTY_SQUARE;
+								if (Player_In_Check(Grid, player) == false)
+								{
+									Grid[x + 1][y - 1] = EMPTY_SQUARE;
+									Grid[x][y] = piece;
+									Grid[x][y - 1] = aux;
+									return false;
+								}
+								Grid[x + 1][y - 1] = EMPTY_SQUARE;
+								Grid[x][y] = piece;
+								Grid[x][y - 1] = aux;
+							}
+						}
+					}
+					if (piece == BLACK_HORSE)
+					{
+						if (x + 2 < 8 && y + 1 < 8)
+						{
+							obj1 = Grid[x + 2][y + 1];
+							if (obj1 == EMPTY_SQUARE || obj1 == WHITE_PAWN || obj1 == WHITE_ROOK || obj1 == WHITE_HORSE || obj1 == WHITE_BISHOP || obj1 == WHITE_QUEEN)
+							{
+								Grid[x + 2][y + 1] = piece;
+								Grid[x][y] = EMPTY_SQUARE;
+								if (Player_In_Check(Grid, player) == false)
+								{
+									Grid[x + 2][y + 1] = EMPTY_SQUARE;
+									Grid[x][y] = piece;
+									return false;
+								}
+								Grid[x + 2][y + 1] = EMPTY_SQUARE;
+								Grid[x][y] = piece;
+							}
+						}
+						if (x + 2 < 8 && y - 1 >= 0)
+						{
+							obj1 = Grid[x + 2][y - 1];
+							if (obj1 == EMPTY_SQUARE || obj1 == WHITE_PAWN || obj1 == WHITE_ROOK || obj1 == WHITE_HORSE || obj1 == WHITE_BISHOP || obj1 == WHITE_QUEEN)
+							{
+								Grid[x + 2][y - 1] = piece;
+								Grid[x][y] = EMPTY_SQUARE;
+								if (Player_In_Check(Grid, player) == false)
+								{
+									Grid[x + 2][y - 1] = EMPTY_SQUARE;
+									Grid[x][y] = piece;
+									return false;
+								}
+								Grid[x + 2][y - 1] = EMPTY_SQUARE;
+								Grid[x][y] = piece;
+							}
+						}
+						if (x - 2 >= 0 && y + 1 < 8)
+						{
+							obj1 = Grid[x - 2][y + 1];
+							if (obj1 == EMPTY_SQUARE || obj1 == WHITE_PAWN || obj1 == WHITE_ROOK || obj1 == WHITE_HORSE || obj1 == WHITE_BISHOP || obj1 == WHITE_QUEEN)
+							{
+								Grid[x - 2][y + 1] = piece;
+								Grid[x][y] = EMPTY_SQUARE;
+								if (Player_In_Check(Grid, player) == false)
+								{
+									Grid[x - 2][y + 1] = EMPTY_SQUARE;
+									Grid[x][y] = piece;
+									return false;
+								}
+								Grid[x - 2][y + 1] = EMPTY_SQUARE;
+								Grid[x][y] = piece;
+							}
+						}
+						if (x - 2 >= 0 && y - 1 >= 0)
+						{
+							obj1 = Grid[x - 2][y - 1];
+							if (obj1 == EMPTY_SQUARE || obj1 == WHITE_PAWN || obj1 == WHITE_ROOK || obj1 == WHITE_HORSE || obj1 == WHITE_BISHOP || obj1 == WHITE_QUEEN)
+							{
+								Grid[x - 2][y - 1] = piece;
+								Grid[x][y] = EMPTY_SQUARE;
+								if (Player_In_Check(Grid, player) == false)
+								{
+									Grid[x - 2][y - 1] = EMPTY_SQUARE;
+									Grid[x][y] = piece;
+									return false;
+								}
+								Grid[x - 2][y - 1] = EMPTY_SQUARE;
+								Grid[x][y] = piece;
+							}
+						}
+						if (x + 1 < 8 && y + 2 < 8)
+						{
+							obj1 = Grid[x + 1][y + 2];
+							if (obj1 == EMPTY_SQUARE || obj1 == WHITE_PAWN || obj1 == WHITE_ROOK || obj1 == WHITE_HORSE || obj1 == WHITE_BISHOP || obj1 == WHITE_QUEEN)
+							{
+								Grid[x + 1][y + 2] = piece;
+								Grid[x][y] = EMPTY_SQUARE;
+								if (Player_In_Check(Grid, player) == false)
+								{
+									Grid[x + 1][y + 2] = EMPTY_SQUARE;
+									Grid[x][y] = piece;
+									return false;
+								}
+								Grid[x + 1][y + 2] = EMPTY_SQUARE;
+								Grid[x][y] = piece;
+							}
+						}
+						if (x + 1 < 8 && y - 2 >= 0)
+						{
+							obj1 = Grid[x + 1][y - 2];
+							if (obj1 == EMPTY_SQUARE || obj1 == WHITE_PAWN || obj1 == WHITE_ROOK || obj1 == WHITE_HORSE || obj1 == WHITE_BISHOP || obj1 == WHITE_QUEEN)
+							{
+								Grid[x + 1][y - 2] = piece;
+								Grid[x][y] = EMPTY_SQUARE;
+								if (Player_In_Check(Grid, player) == false)
+								{
+									Grid[x + 1][y - 2] = EMPTY_SQUARE;
+									Grid[x][y] = piece;
+									return false;
+								}
+								Grid[x + 1][y - 2] = EMPTY_SQUARE;
+								Grid[x][y] = piece;
+							}
+						}
+						if (x - 1 >= 0 && y + 2 < 8)
+						{
+							obj1 = Grid[x - 1][y + 2];
+							if (obj1 == EMPTY_SQUARE || obj1 == WHITE_PAWN || obj1 == WHITE_ROOK || obj1 == WHITE_HORSE || obj1 == WHITE_BISHOP || obj1 == WHITE_QUEEN)
+							{
+								Grid[x - 1][y + 2] = piece;
+								Grid[x][y] = EMPTY_SQUARE;
+								if (Player_In_Check(Grid, player) == false)
+								{
+									Grid[x - 1][y + 2] = EMPTY_SQUARE;
+									Grid[x][y] = piece;
+									return false;
+								}
+								Grid[x - 1][y + 2] = EMPTY_SQUARE;
+								Grid[x][y] = piece;
+							}
+						}
+						if (x - 1 >= 0 && y - 2 >= 0)
+						{
+							obj1 = Grid[x - 1][y - 2];
+							if (obj1 == EMPTY_SQUARE || obj1 == WHITE_PAWN || obj1 == WHITE_ROOK || obj1 == WHITE_HORSE || obj1 == WHITE_BISHOP || obj1 == WHITE_QUEEN)
+							{
+								Grid[x - 1][y - 2] = piece;
+								Grid[x][y] = EMPTY_SQUARE;
+								if (Player_In_Check(Grid, player) == false)
+								{
+									Grid[x - 1][y - 2] = EMPTY_SQUARE;
+									Grid[x][y] = piece;
+									return false;
+								}
+								Grid[x - 1][y - 2] = EMPTY_SQUARE;
+								Grid[x][y] = piece;
+							}
+						}
+					}
+				}
+			}
+		}
+		std::cout << "TIEEEEEEEEEEEEE";
+		system("pause");
+	}
+	return false;//return true when all works ;)
 }
 bool Check_Win(char Grid[][8], char player)
 {
@@ -1832,10 +2322,6 @@ bool Check_Win(char Grid[][8], char player)
 		}
 		return true;
 	}
-	else
-	{
-		//check tie
-	}
 	return false;
 }
 void Player_Choice(char Grid[][8], char PlayerX)
@@ -1925,17 +2411,19 @@ int main()
 	char Grid[8][8];
 	char player = WHITE_PLAYER;
 	bool win = false;
+	bool tie = false;
 	int end;
 start:
 	end = StartUP_menu();
 	if (end == 4) goto end;
 	Create_Grid(Grid);
 	Display_Grid(Grid);
-	while (!win)
+	while (!win && !tie)
 	{
 		Player_Choice(Grid, player);
 		Display_Grid(Grid);
 		win = Check_Win(Grid, player);
+		tie = Check_Tie(Grid, player);
 		player = player % 2 + 1;
 	}
 	Display_Grid(Grid);
